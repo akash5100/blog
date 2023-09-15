@@ -1,5 +1,5 @@
 ---
-title: my stupidity to ignore entropy
+title: I relearned entropy
 categories: time
 ---
 
