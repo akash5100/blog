@@ -1,0 +1,75 @@
+---
+title: traffic on blocked ports
+categories: archive
+---
+
+
+While there are many blogs and tutorials available on accessing a Virtual Cloud Network in a VM instance, such as this [comprehensive guide(by oracle)](https://docs.oracle.com/en/learn/lab_virtual_network/index.html#introduction). Some of the VM instances I'm working with are not vanilla; they come with some bloatware and they block traffics on all the ports.
+
+I worked around [Iptables](https://linux.die.net/man/8/iptables). Go read it. It is used to set up, maintain, and inspect the tables of IP packet filter rules in the Linux kernel. Several different tables may be defined. Each table contains a number of built-in chains and may also contain user-defined chains.
+
+
+I was deploying a Teamspeak server. 
+
+
+**Thank you chatGPT**:
+```md
+The default ports for a TeamSpeak server are as follows:
+
+1. **Voice Communication (UDP)**:
+   - Default Port: 9987
+   - This is the default UDP port used for the TeamSpeak voice communication server.
+
+2. **File Transfer (TCP)**:
+   - Default Port: 30033
+   - This is the default TCP port used for file transfers in TeamSpeak. File transfers are often used for uploading and downloading files, such as server icons or avatars.
+
+3. **Server Query (TCP)**:
+   - Default Port: 10011
+   - This is the default TCP port used for server queries. 
+     Server queries are typically used for administrative purposes, allowing you to manage and configure the TeamSpeak server programmatically.
+
+These are the default ports used by TeamSpeak, but it's worth noting that server administrators can configure different ports if needed. 
+If you're connecting to a TeamSpeak server or setting up your own, make sure to check the server's configuration to confirm the specific ports it's using.
+```
+
+To make this endeavor successful, I needed to open specific ports on the VM instances, and that's where iptables comes into play.
+
+
+Allowing traffic on restricted ports using iptables:
+
+- `sudo iptables -A INPUT -p tcp --dport 30033 -j ACCEPT`: 
+
+   Adding a rule to allow incoming TCP traffic on port 30033.
+
+- `sudo iptables -A INPUT -p tcp --dport 10011 -j ACCEPT`:
+
+   Granting access to incoming TCP traffic on port 10011.
+
+- `sudo iptables -A INPUT -p udp --dport 9987 -j ACCEPT`:
+
+   Allowing incoming UDP traffic on port 9987.
+
+---
+<br>
+
+**Additional steps that I performed (self-reminder)**
+
+In addition to these iptables commands, I've also found it valuable to implement the following supplementary actions:
+
+1. Archiving the current iptables rules ensures that I can revert to a previous configuration if needed.
+   ```sudo iptables-save > ~/iptables-rules```
+
+
+2. Temporarily disabling the firewall rules can be helpful for troubleshooting or testing purposes, though it's essential to be aware of the potential security implications.
+   ```sudo iptables --flush``` 
+
+3. Creating backups of the IPv4 and IPv6 iptables rule files is a safety net against unintended changes or errors.
+   ```sudo mv /etc/iptables/rules.v4 /etc/iptables/rules.v4.bak && sudo mv /etc/iptables/rules.v6 /etc/iptables/rules.v6.bak``` 
+
+4. and reboot instance.
+
+with this, iptable will stop blocking (YOUR) malicious and hostile data packets.
+
+ROCK N ROLL!
+<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4feXJ5IC3avXsVW9WNFSag?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
