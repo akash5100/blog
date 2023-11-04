@@ -1,12 +1,12 @@
 ---
-title: traffic on blocked ports
+title: Traffic on blocked ports
 categories: archive
 ---
 
 
-While there are many blogs and tutorials available on accessing a Virtual Cloud Network in a VM instance, such as this [comprehensive guide(by oracle)](https://docs.oracle.com/en/learn/lab_virtual_network/index.html#introduction). Some of the VM instances I'm working with are not vanilla; they come with some bloatware and they block traffics on all the ports.
+While there are many blogs and tutorials available on accessing a Virtual Cloud Network in a VM instance, such as this [comprehensive guide(by oracle)](https://docs.oracle.com/en/learn/lab_virtual_network/index.html#introduction). Some of the VM instances I'm working with are not vanilla; they come with the distributor's packet blockers and they block traffics on all the ports.
 
-I worked around [Iptables](https://linux.die.net/man/8/iptables). Go read it. It is used to set up, maintain, and inspect the tables of IP packet filter rules in the Linux kernel. Several different tables may be defined. Each table contains a number of built-in chains and may also contain user-defined chains.
+I worked around [Iptables](https://linux.die.net/man/8/iptables) a default firewall for linux, I think. It is used to set up, maintain, and inspect the tables of IP packet filter rules in the Linux kernel. Several different tables may be defined. Each table contains a number of built-in chains and may also contain user-defined chains.
 
 
 I was deploying a Teamspeak server. 
