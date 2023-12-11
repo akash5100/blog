@@ -1,0 +1,259 @@
+---
+title: Coding NLL loss, improving it with log
+categories: deeplearning
+---
+
+To learn the foundation very clearly, I coded MLP, from scratch and trained MNIST dataset. (it was a 3 vs 7 model, a binary classifier). For that I used a Linear function in each neuron, and Relu as activation. and for the final layer I used Sigmoid, because it was 3 vs 7. When I wanted to expand this model from just a binary classifier to multi-class classifier (where each instance belongs to one and only one class) I learned about Softmax activation that can be used in the final layer and then creating a loss function for MNIST model.
+<br />
+<br />
+The first step is to load the dataset(http://yann.lecun.com/exdb/mnist/) into numpy array.
+
+```py
+def fetch(url):
+    import requests, os, numpy, hashlib, gzip
+    fp = os.path.join("/tmp", hashlib.md5(url.encode('utf-8')).hexdigest())
+    if os.path.isfile(fp):
+        with open(fp, "rb") as f:
+            dat = f.read()
+    else:
+        with open(fp, "wb") as f:
+            dat = requests.get(url).content
+            f.write(dat)
+    return numpy.frombuffer(gzip.decompress(dat), dtype=numpy.uint8).copy()
+
+X_train = fetch("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+Y_train = fetch("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz")[8:]
+X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
+```
+
+With this-- `X_train`, `Y_train` and `X_test`, `Y_test` ready to train and validate. The next step is implementing Softmax for the final layer of MLP that I code, so:
+
+Understanding Softmax
+---
+The normalization of data:
+```bash
+>>> a = [2,3,4]
+>>> [i/sum(a) for i in a]
+[0.2222222222222222, 0.3333333333333333, 0.4444444444444444]
+>>> sum([i/sum(a) for i in a])
+1.0
+>>>
+```
+This is done to ensure that the activation are all between 0 and 1, and that they sum to 1.
+
+Softmax is similar to Sigmoid, Sigmoid gives back a number between 0 and 1, but what if we have more categories in our target, such as 0-9 digits, that means we will need more activation than just a single column, *we need activation per category*.
+
+This is basically Softmax but in practice, we do this:
+```py
+from math import exp
+
+>>> a = [2,3,4]
+>>> e = [exp(i) for i in a]
+>>> e
+[7.38905609893065, 20.085536923187668, 54.598150033144236] # the number bigger than others, is now exponentially bigger than others :)
+>>> [i/sum(e) for i in e]
+>>> sum([i/sum(a) for i in a])
+1.0
+```
+We take exponential of each item in the list. This ensures that all our numbers are positive and then dividing by the sum ensures we are going to have a bunch of numbers that add up to 1.
+
+> Exponential also has a nice property: if one of the number in our activations x is slightly bigger than others, the exponential will amplify this since it grows exponentially, which means that in the softmax, that number(which is bigger than others) will be closer to 1. (see in the above example)
+
+
+so the softmax can be coded as:
+```py
+def softmax(x):
+    e = [exp(i) for i in x]
+    return [i/sum(e) for i in e]
+
+# or more better
+
+def softmax(x):
+    return [exp(i) / sum(exp(j) for j in x) for i in x]
+```
+
+Let's test this, for the blog I would be using pytorch instead of my scratch implementation as understanding is all that matters.
+
+for example we have 4 image predictions and have 10 possible class (0-9)
+```py
+>>> import torch
+>>> acts = torch.randn((4, 10))
+>>> acts
+tensor([[-1.4481, -0.1757, -0.7788, -1.0553,  0.4467, -0.6139,  0.4489,  0.8270,
+          0.0285,  0.1228],
+        [ 0.1568,  1.3101,  0.7205, -0.0426, -1.8226, -1.1551,  0.9280,  0.7243,
+         -1.7663,  1.4627],
+        [ 1.5100, -0.8356,  0.1867, -1.0825,  0.0181, -0.9047,  0.4021,  1.0330,
+          1.9762, -1.5650],
+        [ 0.4135,  0.3576, -0.3664,  1.2406, -1.0209,  1.3133, -1.3655, -1.4199,
+          0.5766,  1.4867]])
+acts.sigmoid()
+tensor([[0.1903, 0.4562, 0.3146, 0.2582, 0.6099, 0.3512, 0.6104, 0.6957, 0.5071,
+         0.5307],
+        [0.5391, 0.7875, 0.6727, 0.4893, 0.1391, 0.2396, 0.7167, 0.6735, 0.1460,
+         0.8119],
+        [0.8191, 0.3025, 0.5466, 0.2530, 0.5045, 0.2881, 0.5992, 0.7375, 0.8783,
+         0.1729],
+        [0.6019, 0.5885, 0.4094, 0.7757, 0.2649, 0.7881, 0.2033, 0.1947, 0.6403,
+         0.8156]])
+```
+
+now Softmaxing them:
+
+```py
+>>> sm_acts = acts.softmax(dim=1)
+>>> sm_acts
+tensor([[0.0235, 0.0839, 0.0459, 0.0348, 0.1564, 0.0541, 0.1567, 0.2287, 0.1029,
+         0.1131],
+        [0.0670, 0.2124, 0.1178, 0.0549, 0.0093, 0.0181, 0.1450, 0.1183, 0.0098,
+         0.2475],
+        [0.2303, 0.0221, 0.0613, 0.0172, 0.0518, 0.0206, 0.0761, 0.1429, 0.3671,
+         0.0106],
+        [0.0846, 0.0800, 0.0388, 0.1935, 0.0202, 0.2081, 0.0143, 0.0135, 0.0996,
+         0.2475]])
+>>> sm_acts[0].sum()
+tensor(1.)
+```
+
+Say, target (label) of the 4 images are:
+
+```py
+target = torch.tensor([1,4,5,6]) # first image is the image of 1, the second 4 and so on.
+>>> sm_acts[0] # first image
+tensor([0.0235, 0.0839, 0.0459, 0.0348, 0.1564, 0.0541, 0.1567, 0.2287, 0.1029,
+        0.1131])
+>>> sm_acts[0][1] # this is the prediction for 1st image
+tensor(0.0839)
+```
+
+This could be traversed more easily using indexing in python.
+
+```py
+>>> idx = range(4) # we have 4 image
+>>> sm_acts[idx, target]
+tensor([0.0839, 0.0093, 0.0206, 0.0143])
+# the first image's prediction is 0.0839 and so on. (match them with target) :)
+```
+
+and pytorch provide a function that does exactly the same thing
+
+```py
+>>> import torch.nn.functional as F
+>>> F.nll_loss(sm_acts, target, reduction='none')
+tensor([-0.0839, -0.0093, -0.0206, -0.0143])
+```
+well, its negative. umhmmm???
+
+When applying log afterwards, we will have negative numbers, so: **N**egative **L**og **L**ikelihood
+
+```py
+>>> -sm_acts[idx, target]
+tensor([-0.0839, -0.0093, -0.0206, -0.0143])
+```
+
+Logarithm
+---
+We are using probabilities, and probabilities cannot be smaller than 0 or greater than 1. Than means our model will not care whether it predicts 0.99 or 0.999. Those numbers are very close together -- but in another sense, 0.999 is 10 time more confident than 0.99. So we want to transform our numbers between 0 and 1 to instead be between negative infinity and infinity. [Logarithm](https://en.wikipedia.org/wiki/Logarithm), exactly does that.
+
+Some important points to remember about (why log)-
+- Logarithm is used to create modification in either very very small number or very very large number.
+- Logarithms are used to transform exponential growth or decay into linear relationships for easier analysis.
+
+#### operator : opposite
+- `+` : `-`
+- `x` : `/`
+- `exponential` : `logarithm`
+    - x^2 : 2 log x
+
+**natural** log has base **e** and **common** log has base **10**
+
+When we first take the softmax, and then the log likelihood
+
+
+> Taking the logarithm of the predictions (logits -> softmax -> preds) is a common step in computing the cross-entropy loss or negative log-likelihood loss. In the example, we calculated the softmax probabilities (`sm_acts`).
+
+So, we take log of probabilites (`sm_acts`) and then use target to calculate loss:
+```py
+>>> torch.log(sm_acts)
+tensor([[-3.7508, -2.4781, -3.0813, -3.3581, -1.8553, -2.9169, -1.8534, -1.4753,
+         -2.2740, -2.1795],
+        [-2.7031, -1.5493, -2.1388, -2.9022, -4.6777, -4.0118, -1.9310, -2.1345,
+         -4.6254, -1.3963],
+        [-1.4684, -3.8122, -2.7920, -4.0628, -2.9604, -3.8825, -2.5757, -1.9456,
+         -1.0021, -4.5469],
+        [-2.4698, -2.5257, -3.2493, -1.6425, -3.9021, -1.5697, -4.2475, -4.3051,
+         -2.3066, -1.3963]])
+```
+<br />
+
+------
+#### ChatGPT's explanation:
+
+Verbally speaking, taking the logarithm of probabilities has the effect of compressing the range of values. Specifically:
+- Values close to 1 in the original probabilities become values close to 0 in the log-transformed probabilities.
+- Values between 0 and 1 become negative in the log-transformed probabilities.
+- Very small values become more negative in the log-transformed probabilities, making them stand out and avoiding numerical instability.
+
+In summary, taking the logarithm helps in numerical stability and provides a more interpretable scale, where differences in values correspond to changes in the original probabilities.
+
+------
+<br />
+
+So, after log, we see the preds:
+
+```py
+>>> import torch.nn.functional as F
+>>> l_sm_acts = torch.log(sm_acts)
+>>> preds = l_sm_acts[idx, target]
+>>> preds
+tensor([-2.4781, -4.6777, -3.8825, -4.2475])
+>>> -preds
+tensor([2.4781, 4.6777, 3.8825, 4.2475])
+>>> -preds.mean()
+tensor(3.8215)
+>>>
+>>> F.nll_loss(torch.log(sm_acts), target)
+tensor(3.8215)
+>>>
+```
+
+> we first take the softmax, and then the log likelihood of that-- that combination is called cross-entropy loss.
+
+Finding a right Learning Rate
+---
+
+This is just a note to a technique from a research by *Leslie Smith*.
+
+- Start with very very small LR and exonentially increase it untill we see the loss rising again (for a mini-batch)
+- The Learning Rate with minimum loss is 1e-1 (1 * 10**-1) so Learning Rate for the model we can say is 1e-1/10, which is 1e-2 (1 * 10**-2)
+- for a LR, we care only magnitude
+
+
+Unfreezing & Transfer Learning
+---
+
+Using a pretrained model (trained weights) to use it for a new task, is called Transfer Learning.
+
+### Unfreezing?
+In the context of neural networks, "unfreezing" refers to allowing the weights of certain layers to be updated during training. Typically, when you load a pretrained model, you freeze the weights of the earlier layers, preserving the learned features. This is done to avoid destroying the valuable information encoded in these layers.
+
+However, as you move towards the end of the network, the layers become more task-specific. Unfreezing these later layers allows the model to adapt and learn representations that are more relevant to your specific problem.
+
+here is an example:
+- first few layers -- it learns the details like curves, shapes, line.. we can use that. (freeze)
+- last final layers -- it learns specific details like cat, dog etc. We dont need that in digit classifier for example. (so unfreeze the weights)
+
+### Discriminative learning rate
+
+The learning rate determines how quickly the model should adapt during training. In the example above, we allocate less training time to the initial layers, as they capture more general features. Conversely, we allocate more time to the later layers, allowing them to learn task-specific features more thoroughly.
+
+------
+<br />
+So, these are the steps to transfer learning:
+- load pretrained model
+- freeze initial layers
+- unfreeze later layers
+- train some time (I saw 3 epoch in a ImageNet example)
+- unfreeze all and set discriminative learning rate
+- train again
