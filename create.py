@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import datetime
@@ -31,7 +31,7 @@ def script():
         file.write(f"categories: {category}\n")
         file.write("---\n\n")
     file.close()
-    print(f"Created\nnew blog post at \n'{file_path}' \nwith category '{category}'")
+    print(f"Created\n> @'{file_path}' \n> category: '{category}'")
 
 
 if __name__ == '__main__':
