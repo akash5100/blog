@@ -1,23 +1,28 @@
-# blog
-install dependencies
-```bash
-bundle install
-bundle exec jekyll serve
-```
-to build
-```
-bundle exec jekyll build
-```
-to run in docker:
-```
-docker pull jekyll/jekyll
-docker run --rm -it -p 4000:4000 -v "$(pwd):/srv/jekyll" jekyll/jekyll bash
+# Blog
 
-bundle install
-bundle exec jekyll serve --host 0.0.0.0
+## Installation
+
+```bash
+bundle install          # Install dependencies
+bundle exec jekyll serve # Run the server
 ```
 
-template automater usage
+To build:
+
 ```bash
-./create.py -t 'some title' -c 'what category'
+bundle exec jekyll build # Build the project
+```
+
+## Docker
+
+```bash
+make build  # Build Docker image
+make start  # Start the server
+make clean  # Remove the Docker image
+```
+
+## Template Automater
+
+```bash
+./create.py -t 'some title' -c 'what category'  # Need chmod +x
 ```
