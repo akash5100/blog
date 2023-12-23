@@ -1,0 +1,93 @@
+---
+title: Multi-Label Loss and Accuracy | Training MLP on Titanic dataset
+categories: deeplearning
+---
+
+Multi label classification refers to the problem of identifying the categories of objects in images that may not contain exactly one type of object. So each data can have either single or multiple label(s). Example, a image has car, bicycle, person, tree.
+
+--------------
+<br />
+
+**Why we cant use softmax and NLL loss?**
+
+Softmax outputs values that sum to 1, and because the use of `exp` it tends to push on activation to be much larger than the others. 
+
+Nll loss, returns the value of just one activation: the single activation corresponding with the single label for an item. This doesn't make sense when we have multiple labels.
+
+**Binary Cross Entropy**
+The binary cross entropy, measures the difference between the predicted probs and the actual labels, rewarding the accurate preds and penalizing the wrongs.
+
+Implementing it: 
+```py
+# targets is one-hot encoded
+def binary_cross_entropy(x, targets, sigmoid=True):
+    if sigmoid: x = x.sigmoid()
+    x = torch.where(targets==1, x, 1-x) # if label is 1, return x (prob) else 1-x
+    return -x.log().mean()
+```
+> this means, for every prediction, check if the label is correct or not.
+    If the label is 1, return the predicted probability; otherwise, return 1 minus the predicted probability.
+    Then, take the logarithm and calculate the mean over all predictions to get the Binary Cross Entropy loss.
+    This function helps the model learn by penalizing deviations from the actual labels and encouraging accurate predictions.
+
+**Accuracy for multi-label dataset (Threshold)**
+We need the accuracy function to calculate the accuracy for all the labels for single image. After applying the sigmoid to our activation, we need to decide which ones are 0s and which ones are 1s, with the help of *threshold*. Each value above the threshold will be considered as a 1 and each value lower than the threshold will be considered 0.
+
+```py
+>>> threshold = 0.7
+>>> ((inp>threshold)==targets.bool()).float().mean()
+```
+
+### Hyperparameters
+Hyperparameters are parameters that are not learned during the training process but need to be set before training. Droprate, Epoch, Learning Rate, Threshold, Batch Size etc.
+
+**Setting the threshold of accuracy?**
+I learned a technique where, we create a gradually spread tensor. And for each generate threshold, we check accuracy.
+
+![image](https://github.com/akash5100/blog/assets/53405133/7ee67a94-f174-4ce6-9664-edbf27a7b2ee)
+
+
+### I coded the Titanic dataset in a simple MLP ([Notebook](https://www.kaggle.com/code/akzsh5100/titanic-mlp))
+
+What in the notebook? summarizing---
+
+The dataset is csv format with some information about every passenger. I have to predict whether passenger survived or not. A binary output. The first few question I asked myself are:-
+
+- What should be the output layer activation? -- Sigmoid!
+
+- What I will use for the activation for hidden layers? - Relu or Leaky Relu! (I know it is known for better and fast learning)
+
+- What loss function I should be using?
+  
+  Okay this is interesting, I thought MSE because it is good for big outliers and another thing is I thought its a regression problem, but the problem involves binary classification, not regression. (Regression typically deals with predicting continuous values)
+
+- There are some data cols that I dont need so I will be dropping them out before feeding data to neural net.
+
+- Dealing with non-numerical data in the dataset.
+
+Summarizing it, the process is like- Dataset -> Data preprocessing (there are 10 cols and 800 approx rows) -> 800x10 -> 10x128 (relu) -> 128x1 (sigmoid). If output is >0.5 then its `True` else `False`.
+
+```py
+class TitMLP(nn.Module):
+    def __init__(self):
+        super(TitMLP, self).__init__()
+        self.l1 = nn.Linear(10, 128, bias=False)
+        self.l2 = nn.Linear(128, 1, bias=False)
+        self.sigmoid = nn.Sigmoid()
+        
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = self.l2(x)
+        x = self.sigmoid(x)
+        return x
+```
+
+![Screenshot from 2023-12-22 17-30-19](https://github.com/akash5100/blog/assets/53405133/53718376-b5c5-4f76-a363-0a550b584570)
+
+### Regression and Summarizing Loss functions
+
+Like I made mistake, I can use MSE for Titanic, but no. Think more about what the problem actually is and what loss function I should use.
+
+- Cross Entropy -- Single Label classification
+- Binary Cross Entropy -- Multi Label classifcation
+- MSE -- Regression
