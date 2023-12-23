@@ -5,7 +5,7 @@ categories: deeplearning
 
 To learn the foundation very clearly, I coded MLP, from scratch and trained MNIST dataset. (it was a 3 vs 7 model, a binary classifier). For that I used a Linear function in each neuron, and Relu as activation. and for the final layer I used Sigmoid, because it was 3 vs 7. When I wanted to expand this model from just a binary classifier to multi-class classifier (where each instance belongs to one and only one class) I learned about Softmax activation that can be used in the final layer and then creating a loss function for MNIST model.
 <br />
-<br />
+
 The first step is to load the dataset(http://yann.lecun.com/exdb/mnist/) into numpy array.
 
 ```py
@@ -27,10 +27,10 @@ X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x1
 Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
 ```
 
-With this-- `X_train`, `Y_train` and `X_test`, `Y_test` ready to train and validate. The next step is implementing Softmax for the final layer of MLP that I code, so:
+With this-- `X_train`, `Y_train` and `X_test`, `Y_test` ready to train and validate. The next step is implementing Softmax for the final layer of MLP that I code, so
 
-Understanding Softmax
----
+### Understanding Softmax
+
 The normalization of data:
 ```bash
 >>> a = [2,3,4]
@@ -152,15 +152,15 @@ When applying log afterwards, we will have negative numbers, so: **N**egative **
 tensor([-0.0839, -0.0093, -0.0206, -0.0143])
 ```
 
-Logarithm
----
+### Logarithm
+
 We are using probabilities, and probabilities cannot be smaller than 0 or greater than 1. Than means our model will not care whether it predicts 0.99 or 0.999. Those numbers are very close together -- but in another sense, 0.999 is 10 time more confident than 0.99. So we want to transform our numbers between 0 and 1 to instead be between negative infinity and infinity. [Logarithm](https://en.wikipedia.org/wiki/Logarithm), exactly does that.
 
 Some important points to remember about (why log)-
 - Logarithm is used to create modification in either very very small number or very very large number.
 - Logarithms are used to transform exponential growth or decay into linear relationships for easier analysis.
 
-#### operator : opposite
+**operator : opposite**
 - `+` : `-`
 - `x` : `/`
 - `exponential` : `logarithm`
@@ -188,7 +188,7 @@ tensor([[-3.7508, -2.4781, -3.0813, -3.3581, -1.8553, -2.9169, -1.8534, -1.4753,
 <br />
 
 ------
-#### ChatGPT's explanation:
+**ChatGPT's explanation:**
 
 Verbally speaking, taking the logarithm of probabilities has the effect of compressing the range of values. Specifically:
 - Values close to 1 in the original probabilities become values close to 0 in the log-transformed probabilities.
@@ -220,8 +220,7 @@ tensor(3.8215)
 
 > we first take the softmax, and then the log likelihood of that-- that combination is called cross-entropy loss.
 
-Finding a right Learning Rate
----
+### Finding a right Learning Rate - A technique
 
 This is just a note to a technique from a research by *Leslie Smith*.
 
@@ -230,12 +229,13 @@ This is just a note to a technique from a research by *Leslie Smith*.
 - for a LR, we care only magnitude
 
 
-Unfreezing & Transfer Learning
----
+### Unfreezing & Transfer Learning
+
 
 Using a pretrained model (trained weights) to use it for a new task, is called Transfer Learning.
 
-### Unfreezing?
+#### Unfreezing?
+
 In the context of neural networks, "unfreezing" refers to allowing the weights of certain layers to be updated during training. Typically, when you load a pretrained model, you freeze the weights of the earlier layers, preserving the learned features. This is done to avoid destroying the valuable information encoded in these layers.
 
 However, as you move towards the end of the network, the layers become more task-specific. Unfreezing these later layers allows the model to adapt and learn representations that are more relevant to your specific problem.
