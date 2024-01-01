@@ -49,7 +49,7 @@ I learned a technique where, we create a gradually spread tensor. And for each g
 
 ### I coded the Titanic dataset in a simple MLP ([Notebook](https://www.kaggle.com/code/akzsh5100/titanic-mlp))
 
-What in the notebook? summarizing---
+What's in the notebook? summarizing---
 
 The dataset is csv format with some information about every passenger. I have to predict whether passenger survived or not. A binary output. The first few question I asked myself are:-
 

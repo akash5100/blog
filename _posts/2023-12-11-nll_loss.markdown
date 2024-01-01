@@ -3,31 +3,36 @@ title: Softmax, Logarithms, and NLL Loss
 categories: deeplearning
 ---
 
-To learn the foundation very clearly, I coded MLP, from scratch and trained MNIST dataset. (it was a 3 vs 7 model, a binary classifier). For that I used a Linear function in each neuron, and Relu as activation. and for the final layer I used Sigmoid, because it was 3 vs 7. When I wanted to expand this model from just a binary classifier to multi-class classifier (where each instance belongs to one and only one class) I learned about Softmax activation that can be used in the final layer and then creating a loss function for MNIST model.
+To learn the foundation very clearly, I coded MLP, from scratch and trained MNIST dataset. (it was a 3 vs 7 model, a binary classifier). For that I used a Linear function in each neuron, and Relu as activation. and for the final layer I used Sigmoid. I wanted to expand this model from just a binary classifier to multi-class classifier (where each instance belongs to one and only one class) I learned about Softmax activation that can be used in the final layer and then creating a loss function for MNIST model.
 <br />
 
-The first step is to load the dataset(http://yann.lecun.com/exdb/mnist/) into numpy array.
+<details>
+<summary>
+The first step is to load the <a href="http://yann.lecun.com/exdb/mnist/">dataset</a> into numpy array.
+</summary>
+<pre>
+    def fetch(url):
+        import requests, os, numpy, hashlib, gzip
+        fp = os.path.join("/tmp", hashlib.md5(url.encode('utf-8')).hexdigest())
+        if os.path.isfile(fp):
+            with open(fp, "rb") as f:
+                dat = f.read()
+        else:
+            with open(fp, "wb") as f:
+                dat = requests.get(url).content
+                f.write(dat)
+        return numpy.frombuffer(gzip.decompress(dat), dtype=numpy.uint8).copy()
 
-```py
-def fetch(url):
-    import requests, os, numpy, hashlib, gzip
-    fp = os.path.join("/tmp", hashlib.md5(url.encode('utf-8')).hexdigest())
-    if os.path.isfile(fp):
-        with open(fp, "rb") as f:
-            dat = f.read()
-    else:
-        with open(fp, "wb") as f:
-            dat = requests.get(url).content
-            f.write(dat)
-    return numpy.frombuffer(gzip.decompress(dat), dtype=numpy.uint8).copy()
+    X_train = fetch("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+    Y_train = fetch("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz")[8:]
+    X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
+    Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
 
-X_train = fetch("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
-Y_train = fetch("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz")[8:]
-X_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28, 28))
-Y_test = fetch("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz")[8:]
-```
-
-With this-- `X_train`, `Y_train` and `X_test`, `Y_test` ready to train and validate. The next step is implementing Softmax for the final layer of MLP that I code, so
+With this-- `X_train`, `Y_train` and `X_test`, `Y_test` ready to train and validate. 
+The next step is implementing Softmax for the final layer of MLP that I code, so
+</pre>
+</details>
+<br/>
 
 ### Understanding Softmax
 
@@ -188,14 +193,16 @@ tensor([[-3.7508, -2.4781, -3.0813, -3.3581, -1.8553, -2.9169, -1.8534, -1.4753,
 <br />
 
 ------
-**ChatGPT's explanation:**
-
-Verbally speaking, taking the logarithm of probabilities has the effect of compressing the range of values. Specifically:
+<details>
+<summary>ChatGPT's explanation of logarithm:</summary>
+<pre>
+The logarithm of probabilities has the effect of compressing the range of values. Specifically:
 - Values close to 1 in the original probabilities become values close to 0 in the log-transformed probabilities.
 - Values between 0 and 1 become negative in the log-transformed probabilities.
 - Very small values become more negative in the log-transformed probabilities, making them stand out and avoiding numerical instability.
-
 In summary, taking the logarithm helps in numerical stability and provides a more interpretable scale, where differences in values correspond to changes in the original probabilities.
+</pre>
+</details>
 
 ------
 <br />
@@ -204,21 +211,28 @@ So, after log, we see the preds:
 
 ```py
 >>> import torch.nn.functional as F
->>> l_sm_acts = torch.log(sm_acts)
->>> preds = l_sm_acts[idx, target]
+>>> l_sm_acts = torch.log(sm_acts) # log of preds
+>>> preds = l_sm_acts[idx, target] # log of preds for target
 >>> preds
 tensor([-2.4781, -4.6777, -3.8825, -4.2475])
->>> -preds
+>>> -preds # negate it to make output positive
 tensor([2.4781, 4.6777, 3.8825, 4.2475])
->>> -preds.mean()
-tensor(3.8215)
->>>
+>>> -preds.mean() # mean
+tensor(3.8215) # this is the measure of difference between preds and target
+
+>>> ################ Torch ####################
 >>> F.nll_loss(torch.log(sm_acts), target)
 tensor(3.8215)
 >>>
 ```
 
 > we first take the softmax, and then the log likelihood of that-- that combination is called cross-entropy loss.
+
+> softmax (preds) -> log -> mean of the logs of preds
+
+> The mean of the negated log probabilities is a way to measure the dissimilarity between the predicted probabilities and the true labels. 
+
+> Minimizing this loss during training helps the model improve its ability to correctly classify inputs.
 
 ### Finding a right Learning Rate - A technique
 
