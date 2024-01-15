@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: intelligence is evolution
+title: Step Into Tomorrow Today
 email: akashzsh08@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   A home for my poorly researched ideas and occasionally learned stuff that I find myself repeating often anyway
@@ -29,19 +29,6 @@ github_username:  akash5100
 
 # Build settings
 theme: minima
-# theme: architect
-# theme: cayman
-# theme: dinky
-# theme: hacker
-# theme: leap-day
-# theme: merlot
-# theme: midnight
-# theme: minimal
-# theme: modernist
-# theme: primer
-# theme: slate
-# theme: tactile
-# theme: time-machine
 
 plugins:
   - jekyll-feed
