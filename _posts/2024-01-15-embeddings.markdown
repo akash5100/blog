@@ -3,7 +3,7 @@ title: Everything that I learned about Embeddings
 categories: deeplearning
 ---
 
-I will write a follow up blog that will be about Regression and Random Forest, today completes the half of the first month of 2024, I learned lots of stuffs that I am interested and participated on a Kaggle compe, predicing Energy consumption and production using solar panels, just to try what I learned and now I am one step closer to understanding the "Attention". To whoever reads this (other than me) I started writing blogs as creating notes to what I learned, example, I learned about neural net's neurons and wrote a blog on it, talking to myself, but if you read some other blog of mine or reading this, or will read after this, then-- thank you, I will continue this journey and still be writing this blog for future me like creating notes, maybe in more readable (and understandable to others) form.
+I will write a follow up blog about Regression and Random Forest, today completes the half of the first month of 2024, I learned lots of stuffs that I am interested and participated on a Kaggle compe, predicing Energy consumption and production using solar panels, just to try what I learned and now I am one step closer to understanding the "Attention". To whoever reads this (other than me) I started writing blogs as creating notes to what I learned, example, I learned about neural net's neurons and wrote a blog on it, talking to myself, but if you read some other blog of mine or reading this, or will read after this, then-- thank you, I will continue this journey and still be writing this blog for future me like creating notes, maybe in more readable (and understandable to others) form.
 
 -------
 <br/>
@@ -176,7 +176,7 @@ In the end, this is coming back to _how to avoid disaster when rolling out any k
 
 Yo, what we saw above is just a simple dot product, there are 2 ways that I learned:
 
-1. Get the latent factors (embeddings) and predict scores with simple Dot products. When data is simple and big I assume. more fast? efficiency?
+1. Get the latent factors (embeddings) and predict scores with simple Dot products. when data is simple and big I assume, for more speed and efficiency?
 2. Other is to get the latent factors and concat them (movies_embs + user_embs) and pass them to neural net layers. --The Deep Learning Approach
 
 Look below the image of Google play's rec sys.
@@ -193,14 +193,15 @@ Google Play's recommendation system paper[^4]
 
 ![image](https://github.com/akash5100/blog/assets/53405133/eab05bc6-9895-46d5-9834-eadf53437db0)
 
-This entity embedding is specifically talking about the second part, when we have embeddings for categorical variables, we can concatenate them (the embedding) with RAW categorical data, (either one hot encoded or ordinal) and use that result to feed into Neural network.
+This entity embedding specifically refers to the second part, when we have embeddings for categorical variables, we can concatenate them (the embedding) with RAW categorical data, (either one hot encoded or ordinal) and use that result to feed into Neural network.
 
 
-> Yo watch this below from 'Practical Deep Learning for Coders book'
+> this below is from 'Practical Deep Learning for Coders book' worth sharing
 
 ![image](https://github.com/akash5100/blog/assets/53405133/e7bd8588-0954-4649-a7c6-fc6c004c2de6)
 
 **Other thing that I learned, that want to remember is (might be wrong on this)**
-Big orgs doesn't create better architectures marginally, they just are up-to-date with researches on that specific domain they are working, example NLP, Comp Vis etc. When they like some new discoveries, they keep that and throw others away. This could be more easily understood if you think of this example, startups like Figma is created to be better than already available Adobe, later Adobe buys it. Same thing but the architecture, maybe opensource researches, who knows.
+
+Big orgs doesn't create better architectures marginally, they just stay up-to-date with research on that specific domain they are working, for example NLP, Comp Vision etc. When they like some new discoveries, they keep that. This could be more easily understood if you think of this example: startups like Figma are created to be better than already available products like Adobe, and later Adobe buys it. The same thing happens with architectures - maybe from open source research, who knows.
 
 **Sources**
