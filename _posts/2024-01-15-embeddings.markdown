@@ -202,6 +202,6 @@ This entity embedding specifically refers to the second part, when we have embed
 
 **Other thing that I learned, that want to remember is (might be wrong on this)**
 
-Big orgs doesn't create better architectures marginally, they just stay up-to-date with research on that specific domain they are working, for example NLP, Comp Vision etc. When they like some new discoveries, they keep that. This could be more easily understood if you think of this example: startups like Figma are created to be better than already available products like Adobe, and later Adobe buys it. The same thing happens with architectures - maybe from open source research, who knows.
+Big orgs doesn't create better architectures (their researchers do), How the researchers do? on addition to working on researches, they stay up-to-date with research on that specific domain they are working, for example NLP, Computer Vision etc. When they like some new discoveries, they keep that. On top level, this could be more easily understood if you think of this example: there are startups like Figma which provides better features from the already available products like Adobe, and later Adobe buys it. The same thing happens with architectures - maybe they see a breakthrough research, if open source research, they test it and if they get success they spent their resources in that, who knows.
 
 **Sources**
