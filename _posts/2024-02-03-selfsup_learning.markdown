@@ -1,5 +1,5 @@
 ---
-title: Self-Supervised learning in NN and Transfer learning
+title: Self-Supervised learning and Transfer learning (feat. LM)
 categories: deeplearning
 ---
 
