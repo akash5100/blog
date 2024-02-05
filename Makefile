@@ -1,7 +1,7 @@
 .PHONY: start clean build
 
 start:
-	docker run -it -p 4000:4000 -v "$(PWD):/srv/jekyll" blog-iie sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
+	docker run -it -p 4000:4000 --rm -v "$(PWD):/srv/jekyll" blog-iie sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
 
 clean:
 	docker rmi -f blog-iie
