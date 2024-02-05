@@ -270,10 +270,10 @@ We can create a function for that:
 
 ```py
 def group_chunks(ds, bs):
-    new_a = []
+    new_ds = []
     m = len(ds)//bs
-    for i in range(m): new_a += (a[i + m*j]  for j in range(bs))
-    return new_a
+    for i in range(m): new_ds += (ds[i + m*j]  for j in range(bs))
+    return new_ds
 
 new_a = group_chunks(a, bs=2)
 
@@ -298,3 +298,5 @@ Creating the with our `seqs`.
 train_ds = group_chunks(seqs[cut:], bs)
 valid_ds = group_chunks(seqs[:cut], bs)
 ```
+
+This is the way, we organize the data into batches for sequential processing in a model, particularly in the context of recurrent neural networks (RNNs) or sequence models.
