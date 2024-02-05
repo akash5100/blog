@@ -176,4 +176,125 @@ nums[:20] # our first 20 tokens.
 [10, 0, 5, 0, 9, 0, 7, 0, 4, 0, 3, 0, 8, 0, 11, 0, 6, 0, 26, 0]
 ```
 
-We have our dataset ready!
+Now that our dataset ready data modeling for Language Model should be easy.
+
+We going to predict each word based on previous 3 words, so the sequence would be a list of 3 word as independent variable and the label would be the next word after each sequence (dependent variable).
+
+```py
+[(tokens[i:i+3], tokens[i+3]) for i in range(0, len(tokens)-4, 3)][:3]
+# outputs:
+[(['one', '.', 'two'], '.'),
+ (['.', 'three', '.'], 'four'),
+ (['four', '.', 'five'], '.')]
+ ```
+
+ We can do this with `nums` which is what the model will actually use:
+
+```py
+seqs = [tensor(nums[i:i+3]), tensor(nums[i+3]) for i in range(0, len(nums)-4, 3)]
+
+seqs[:5]
+
+[(tensor([10,  0,  5]), 0),
+ (tensor([0, 9, 0]), 7),
+ (tensor([7, 0, 4]), 0),
+ (tensor([0, 3, 0]), 8),
+ (tensor([ 8,  0, 11]), 0)]
+```
+
+We can use 80% of sequence as training and 20% as validating dataset.
+
+```py
+bs = 64
+cut = int(len(seqs)*0.8)
+
+train_ds = seqs[:cut]
+valid_ds = seqs[cut:]
+```
+
+Because the activations on a architecture like RNN is carried forward within batches, if sequence 1 of batch 1 and batch 2 are flowing, our Neural Net will learn better. The activations being carried forward in RNN is called **Hidden state** (we'll study this in detail).
+
+If *bs* is the batch size, and *m* is the length of each sequence in a batch,
+
+```py
+bs = 64
+m = len(seqs)//bs
+m, bs, len(seqs)
+(328, 64, 21031)
+```
+
+The first batch will be composed of samples:
+
+`(0, m*1, m*2, m*3, ... m*(bs-1))`
+
+The second batch will be:
+
+`(0, m+1*1, m+1*2, m+1*3, ... m+1*(bs-1))`
+
+
+This way at each epoch, the model will see a chunk of contiguous text of size **3*m**.
+
+Lets understand this with an example:
+
+```py
+>>> a = """my name is akash and akash is my name both means
+        same thing right ? ?"""
+>>> a = a.split(" "); a
+['my', 'name', 'is', 'akash', 'and', 'akash', 'is', 'my', 'name',
+'both', 'means', 'same', 'thing', 'right', '?', '?']
+
+
+>>> bs = 2; m = len(a)//bs; m
+8
+# there will be 2 batches and each of them will have sequence of length 8
+
+>>> a[:m]
+['my', 'name', 'is', 'akash', 'and', 'akash', 'is', 'my']
+>>> a[m:2*m]
+['name', 'both', 'means', 'same', 'thing', 'right', '?', '?']
+
+>>> a[0 + m*0]
+'my'
+>>> a[0 + m*1]
+'name'
+>>> a[1 + m*0]
+'name'
+>>> a[1 + m*1]
+'both'
+```
+
+Its like what we discussed above: <br>
+    `a[each token in a sequence + m * for each batch]`
+
+We can create a function for that:
+
+```py
+def group_chunks(ds, bs):
+    new_a = []
+    m = len(ds)//bs
+    for i in range(m): new_a += (a[i + m*j]  for j in range(bs))
+    return new_a
+
+new_a = group_chunks(a, bs=2)
+
+>>> for i in range(m+bs):
+...     print(new_a[i], new_a[i+bs], new_a[i+bs*2])
+...
+my name is
+name both means
+name is akash
+both means same
+is akash and
+means same thing
+akash and akash
+same thing right
+and akash is
+thing right ?
+```
+
+Creating the with our `seqs`.
+
+```py
+train_ds = group_chunks(seqs[cut:], bs)
+valid_ds = group_chunks(seqs[:cut], bs)
+```
