@@ -66,6 +66,7 @@ When using the library like Spacy or Fastai, we instantiate our subword tokenize
 The length of each token depends on the size of vocab, if we created a vocab of size smaller, token size is smaller too that means it will break a single word into many words. Whereas if the vocab size to too big, it will consider a complete word as a token.
 
 small vocab size -> 'y o u d is c over ed' -> more tokens
+
 large vocab size -> 'you discover ed' -> less tokens
 
 Picking a vocab size represents a compromise, a larger vocab size means fewer tokens per sentence, which means faster training and less memory and less state for the model to remember. But on the downside, it means larger embedding matrices, which require more data to learn.
