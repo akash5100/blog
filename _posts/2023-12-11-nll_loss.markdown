@@ -1,5 +1,5 @@
 ---
-title: Softmax, Logarithms, and NLL Loss
+title: You ignored Logarithms at school?
 categories: deeplearning
 ---
 

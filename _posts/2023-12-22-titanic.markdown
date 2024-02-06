@@ -1,5 +1,5 @@
 ---
-title: Multi-Label Loss and Accuracy | Training MLP on Titanic dataset
+title: Training a model on a multi-label dataset, also a NN on Titanic dataset
 categories: deeplearning
 ---
 
