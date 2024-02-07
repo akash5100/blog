@@ -1,6 +1,6 @@
 ---
 title: Modeling a simple RNN and making it stateful, what's LSTM?
-categories: 
+categories: deeplearning
 ---
 
 If we have data like:
@@ -156,7 +156,6 @@ valid_ds = group_chunks(seqs[cut:], bs)
 ```
 
 ```py
-
 class LMModel4(nn.Module):
     def __init__(self, vocab_sz, n_hidden):
         self.ih = nn.Embedding(vocab_sz, n_hidden)
@@ -179,21 +178,108 @@ n_hidden = 64
 vocab_sz = len(vocab)
 ```
 
-the input x, to the RNN model now of length 16, instead of 3.
+The input x, to the RNN model now of length 16, instead of 3.
 
-we are trying to predict next word after each word.
+We are trying to predict next word after each word. So we loop through for each word in a sequence and feed that word in the embedding and pass it into the linear layer, while updating the hidden state. and it gives one output, which is of length equal to the length of vocab (later we can softmax it, which gives a single word with highest probability).
 
-so we loop through for each word in a sequence and feed that word in the emb and pass it into the linear layer, while updating the hidden state. and it gives one output, which is of length equal to the length of vocab (later we can softmax it, which tells us a single word with highest probability).
-
-But for now, we actually save/append that 30 shaped tensor into an array, and we do that for each word in the sequence.
-
-so for sequence length = 16, the `outs` array will be of length 16, and each element is a tensor of size 30.
+But for now, we actually save/append that 30 shaped tensor into an array, and we do that for each word in the sequence. So for sequence length = 16, the `outs` array will be of length 16, and each element is a tensor of size 30. `[16, 30] -- [sl, vocab_sz]`
 
 To summarize, for every word in the sequence of length 16, we made the NN predict the next word (everything is possible because how we created the dls) and we save every next word prediction and stack it. That stack of preds is helpful to calculate loss.
 
-Actually each element of of size 64 x 30, with the help of numpy's batch processing, so under the hood, we apply those operations on the complete batch (64 in this case).
+Actually each element of size 64 x 30, with the help of numpy's batch processing, so under the hood, we apply those operations on the complete batch (64 in this case).
 
-# Upcoming topics
+So the final output of model will be of shape `[bs x sl x vocab_sz]`.
 
-- Multilayer RNN
-- Exploding and disappearing Activations
+```py
+# understanding stack with dim=1
+>>> a = torch.tensor([1,3,5])
+>>> b = torch.tensor([2,4,6])
+>>> torch.stack([a,b])
+tensor([[1, 3, 5],
+        [2, 4, 6]])
+>>> torch.stack([a,b], dim=1)
+tensor([[1, 2],
+        [3, 4],
+        [5, 6]])
+```
+Let's say we have 4 data points, and it gave us output of 5 (vowels). 
+
+![image](https://github.com/akash5100/blog/assets/53405133/8f81728c-25f7-4ca1-bb2e-9c140cf32468)
+
+Likewise, we stack all the `64` batch and calculate the loss at one go. Since we stacked on dim=1. Here is the loss function:
+
+```py
+def loss_func(preds, targs):
+    return F.cross_entropy(preds.view(-1, 5), targs.view(-1))
+```
+
+We only have one linear layer between the hidden state and the output activations in our basic RNN, so maybe we'll get better results with more.
+
+*Creating Multilayer RNN*
+
+In, a multilayer RNN, we pass the activations from one RNN into a second RNN.
+
+![image](https://github.com/akash5100/blog/assets/53405133/06184635-b2d0-4d5b-a86e-d969b25ebdb0)
+
+We can save our time and use PyTorch's RNN class, which implements exactly the same.
+
+```py
+# Args:
+#  |      input_size: The number of expected features in the input `x`
+#  |      hidden_size: The number of features in the hidden state `h`
+#  |      num_layers: Number of recurrent layers. E.g., setting ``num_layers=2``
+#  |          would mean stacking two RNNs together to form a `stacked RNN`,
+#  |          with the second RNN taking in outputs of the first RNN and
+#  |          computing the final results. Default: 1
+#         batch_first: If ``True``, then the input and output tensors are
+#  |          provided as `(batch, seq, feature)` instead of `(seq, batch, feature)`.
+#  |          Note that this does not apply to hidden or cell states. See the
+#  |          Inputs/Outputs sections below for details.  Default: ``False``
+
+class LMModel5(nn.Module):
+    def __init__(self, vocab_sz, n_hidden, n_layers):
+        self.ih = nn.Embedding(vocab_sz, n_hidden)
+        self.rnn = nn.RNN(n_hidden, n_hidden, n_layers, batch_first=True)
+        self.ho = nn.Linear(n_hidden, vocab_sz)
+        self.h = torch.zeros(n_layers, bs, n_hidden)
+
+    def forward(self, x):
+        res, h = self.rnn(self.ih(x), self.h)
+        self.h = h.detach()
+        return self.ho(res)
+
+    def reset(self): self.h.zero_()
+
+n_hidden = 64
+vocab_sz = len(vocab)
+n_layers = 2
+
+# And if we train this:
+learn = Learner(dls, LMModel5(len(vocab), 64, 2), 
+                loss_func=CrossEntropyLossFlat(),
+                metrics=accuracy, cbs=ModelResetter)
+learn.fit_one_cycle(15, 3e-3)
+```
+![image](https://github.com/akash5100/blog/assets/53405133/4c8de6ea-d643-4bd9-927f-918be1d7445d)
+
+It disappointing than our single layer RNN, why so? The reason is that we have a deeper model, leading to exploding or vanishing activations.
+
+*Exploding and disappearing Activations*
+
+In Practice, creating accurate RNN model is difficult. We will get better results if we call `detach` less often and have more layers-- this will give our RNN a longer time to learn from and richer features to create. This means our model is more deep and training this kind of deep model is a key challenge. 
+
+This is challenging because of what happens when you multiply by a matrix many times. If we multiply a number many times, eg, if you keep multiplying 1 with 2, 2, 4, 8, 16 and after 32 steps, you already at 4,294,967,296. A similar issue happens if you multiply by 0.5, you get 0.5, 0.25, 0.125 and after 32 steps, 0.00000000023. As you can see, multiplying a number even slightly higher or lower than `1` results in an explosion or disappearence of our starting number, after just few multiplications.
+
+Because matrix multiplication is just multiplyiong number and then adding them up, exactly same thing happens-- and that's all a deep neural network is-- each extra layer is another matrix multiplication. This means that it is very easy for a deep nn to end up with extremely large or extremly small numbers.
+
+This is a problem, because the way computer stores floating numbers, it become less and less accurate the further away the number gets from zero.
+
+![image](https://github.com/akash5100/blog/assets/53405133/a2a5d149-1726-41da-9aa7-9797021adb5b)
+
+This inaccuracy often leads to the gradient calculated for updating the weights end up as zero or infinity. This is referred to as the *exploding or vanishing gradients* problem. That means, in SGD the weights are either not updated at all or jump to infinity, either way that doesn't improve with training.
+
+One option is to change the definition of a layer in a way that makes it less likely to have exploding activations. (How? idk.)
+
+Another option is by being careful about initialization.
+
+For RNNs, two types of layers are frequently used to avoid exploding activations: gated recurrent units (GRUs) and long short-term memory (LSTM) layers. Both of these are available in PyTorch and are drop-in replacements for the RNN layer.
