@@ -96,12 +96,22 @@ We have non-linearity in labels, our universal function approxiator (neural nets
 
 ![image](https://github.com/akash5100/blog/assets/53405133/6702cbb2-bb7b-4096-b7f1-d321e0e6c721)
 
-It will be more and more shape, that's nothing but overfitting.
+It will be more and more *sharp*, that's nothing but overfitting.
 
 #### **Weight Decay or L2 Regularization**
 
-To avoid this, want to reduce the size of trained weights. This could be done by:
-prediction - target, which gives us loss. Add the loss to the __sum of weights whole squared__. This increases the loss. We calculate the gradient, the step function makes weights more less that it should be. This is called _Weight Decay_.
+1. Large weights in a neural network indicate that certain activations are becoming more active compared to others over time. 
+2. We calculate loss to determine the disparity between our predictions and the target, and then use it to compute gradients. `preds - targs`
+3. We adjust the weights to minimize the loss, with the frequency of adjustments determined by the *learning rate*.
+4. Adding a large term to artificially inflate the loss can cause the gradient descent algorithm to decrease the weights more than necessary.
+5. This aggressive adjustment of weights occurs because the stochastic gradient descent algorithm perceives a steep gradient in the opposite direction when the loss is artificially increased.
+6. However, in practical scenarios, directly augmenting the loss would be inefficient. Instead, a large constant is added directly when calculating the gradient, effectively increasing its magnitude without inflating the loss.
+
+> When the loss is higher, indicating poorer model performance, the gradient will typically have a larger magnitude, suggesting a steeper slope in the loss landscape. Following the direction opposite to the gradient with appropriate step size allows gradient descent to efficiently navigate the landscape and converge to a better set of model parameters, thereby minimizing the loss.
+
+> Whether a weight becomes smaller or larger depends on the sign of the gradient for that weight and the direction opposite to it that is followed during optimization.
+
+We calculate the gradient, the step function makes weights more less that it should be. This is called _Weight Decay_.
 
 In practice, it would be very inefficient, we can do this _increasing of loss_ task directly while calculating gradient.
 
