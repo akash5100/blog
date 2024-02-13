@@ -1,6 +1,6 @@
 ---
 title: I relearned entropy
-categories: time
+categories: time, space
 ---
 
 I learned about black hole, how are they possible? (just started). On the sunday morning, I started reading a paper about BBC Reith Lecture. It all started with Albert E. writing a paper in 1939 claiming that stars could not collaspe under gravity because matter could not be compressed beyond a certain point, many scientist thought the same but American scientist John Wheeler, who in many ways is the hero of the black hole story. In his work in 1950s and 1960s, emphasized that many stars would eventually collapse and pointed out problems that possibility posed for theoretical physics. Durring most of the life of a normal star, over billons of years, it will support itself against its own gravity by thermal pressure caused by nuclear processes which convert hydrogen into helium. Eventually, however the star will exhaust its nuclear fuel. The star will now contract. in some cases it may be able to support itself a 'white dwarf' star.

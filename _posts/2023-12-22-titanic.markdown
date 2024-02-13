@@ -1,6 +1,6 @@
 ---
-title: Training a model on a multi-label dataset, also a NN on Titanic dataset
-categories: deeplearning
+title: loss_func for multi-label data, training a NN on Titanic dataset
+categories: multilabel, classification, deeplearning
 ---
 
 Multi label classification refers to the problem of identifying the categories of objects in images that may not contain exactly one type of object. So each data can have either single or multiple label(s). Example, a image has car, bicycle, person, tree.
