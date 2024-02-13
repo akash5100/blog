@@ -1,6 +1,6 @@
 ---
 title: Self-Supervised learning and Transfer learning (feat. LM)
-categories: deeplearning, transfer learning
+categories: deeplearning
 ---
 
 A language model is a model that is trained to guess the next word in a text (having read the ones before). This kind of task is called self-supervised learning.

@@ -1,6 +1,6 @@
 ---
 title: Tokenize & Numericalize
-categories: deeplearning, NLP
+categories: deeplearning
 ---
 
 Here are the main steps for language modeling:

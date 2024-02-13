@@ -1,6 +1,6 @@
 ---
 title: Traffic on blocked ports
-categories: tools, vm
+categories: tools
 ---
 
 
