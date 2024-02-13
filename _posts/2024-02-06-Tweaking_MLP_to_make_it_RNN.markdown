@@ -1,9 +1,9 @@
 ---
-title: Modeling a simple RNN and making it stateful, what's LSTM?
+title: Creating RNN and making it stateful
 categories: deeplearning
 ---
 
-If we have data like:
+If we have data like: (from the example of previous blog)
 
 `X` -- `Y`
 
@@ -11,7 +11,7 @@ If we have data like:
 
 `'.', 'three', '.'` -- `'four'`
 
-where 3 words are used as input to predict 1 word from a vocabulary as an output, we can create a neural network architecture that takes three words as input and returns a prediction of the probability for each possible next word in the vocabulary.
+Where 3 words are used as input to predict 1 word from a vocabulary as an output, we can create a neural network architecture that takes three words as input and returns a prediction of the probability for each possible next word in the vocabulary.
 
 We will use *three standard linear layers* but with *two tweaks*!
 
@@ -50,7 +50,7 @@ class LMModel1(nn.Module):
 `ih (input to hidden) -> hh (hidden to hidden) -> ho (hidden to output)`
 
 
-**We can remove the hardcoded part**
+#### **We can remove the hardcoded part by replacing it with a loop**
 
 ```py
 class LMModel2(nn.Module):
@@ -72,23 +72,32 @@ class LMModel2(nn.Module):
 
 > Jargon: Hidden State <br> The activations that are updated at each step of a recurrent neural network.
 
-> Jargon: Recurrent NN (Looping NN) <br> A neural network that is defined using a loop like this is called a recurrent Neural Network. <br> RNN is not a complicated new architecture but simply a refactoring of a multilayer neural network using a for loop.
+> Jargon: Recurrent NN (Looping Neural Net) <br> A neural network that is defined using a loop like this is called a recurrent Neural Network. <br> RNN is not a complicated new architecture but simply a refactoring of a multilayer neural network using a for loop.
 
-**Improving our RNN**
+#### **Improving our RNN**
 
 Looking at the code, one thing seems problematic is that we are initializing our hidden state to zero for every new input sequence. Why is that problematic? 
 
-Resetting the activations to zero for every sequence means starting with a "blank slate" for each new input sequence. It doesn't allow the model to remember information from previous sequences it has processed. Imagine you reading a story in a book, but when you turn a page you forget what you read, lol.
+Resetting the activations to zero for every sequence means starting with a "blank slate" for each new input sequence. It doesn't allow the model to **remember information from previous sequences** it has processed. Imagine you reading a story in a book, but when you turn a page you forget what you read, lol.
 
 Another thing that can be improved in our RNN is, why only predict the 4th word after 3 words? why not predict the 2nd and 3rd words?
 
-**First thing first, let's solve the resetting of hidden state**
+#### **First thing first, let's solve the resetting of hidden state**
 
 We are basically throwing away the information we have about the sentences we have seen so far, this could be easily fixed by saving the state as a class variable.
 
 `self.h = 0`, and update it each time.
 
 But we will be creating a not very noticable, but important to deal problem. Any guesses?
+
+Here is what will happen: 
+- During the forward pass, the RNN processes the input sequence step by step, generating hidden states (`h`) for each time step, Let's say you have an input sequence of length `T` and an RNN with hidden size `H`. At each time step `t`, the RNN takes the input `x_t` and then previous hidden state `h_{t-1}`, and produces the current hidden state `h_t` and the output `y_t`.
+- after processing the entire input seqs, you compare the predicted outputs `y_t` with the true labels  `y_{true, t}` for each step `t`. You compute the loss function that measures the difference between the predicted and true labels.
+- Backward pass-- Now you need to backpropagate the error through the RNN to update the weights and biases. BPTT (backpropagation through time) does this by unrolling the RNN through time and applying standard backprop at each time step. 
+    - at each time step `t`, you compute the error term `delta_t` by applying the chain rule to the loss function with respect to the output `y_t` and the hidden state `h_t`.
+    - You then propagate the error term backward through time, using the error term of the current time step `t` to compute the error term of the previous time step `t-1`. This is done by applying the chain rule to the RNN's update equations.
+    - Finally, you update the weights and biases of the RNN using the computed error terms and an optimizer (e.g., gradient descent) at each time step `t`.
+- repeat-- repeat steps 2 and 3 for multiple epochs, until loss converges.
 
 So, for a word, we created embeddings and activations is stored in hidden state. For a new word, we are actually incorporating the activation of that word into the already existing hidden state. This accumulation occurs over time, and if there are 1000 tokens, the size will grow to incorporate information from 1000 tokens. But in real world, we might have 1 million tokens.
 
@@ -135,7 +144,7 @@ But this would be the shape of hidden state: `64 x 64`. This could be explained 
 
 We can use our previous [group_chunks](https://akash5100.github.io/blog/deeplearning/2024/02/05/Tokenization_for_LM.html) function to create sequence.
 
-But wait, we can improve the our model, instead of predicting 1 word after every 3 word, what if we can predict next word after every single word?
+But wait, we can improve the our model, instead of predicting 1 word after every 3 word, *what if we can predict next word after every single word*?
 
 This is simple to add in! We first need to change our data, so that the dependent variable has each of the three next words after each of our three input words.
 
@@ -182,13 +191,11 @@ The input x, to the RNN model now of length 16, instead of 3.
 
 We are trying to predict next word after each word. So we loop through for each word in a sequence and feed that word in the embedding and pass it into the linear layer, while updating the hidden state. and it gives one output, which is of length equal to the length of vocab (later we can softmax it, which gives a single word with highest probability).
 
-But for now, we actually save/append that 30 shaped tensor into an array, and we do that for each word in the sequence. So for sequence length = 16, the `outs` array will be of length 16, and each element is a tensor of size 30. `[16, 30] -- [sl, vocab_sz]`
+But for now, we actually save/append that 30 shaped tensor into an array, and we do that for each word in the sequence. So for sequence length = 16, the `outs` array will be of length 16 and each element is a tensor of shape `bs, vocab_sz`-- `64, 30`.
 
-To summarize, for every word in the sequence of length 16, we made the NN predict the next word (everything is possible because how we created the dls) and we save every next word prediction and stack it. That stack of preds is helpful to calculate loss.
+To summarize, for every word in the sequence of length 16, we made the NN predict the next word (everything is possible because how we created the data splits) and we save every next word prediction and stack it.
 
-Actually each element of size 64 x 30, with the help of numpy's batch processing, so under the hood, we apply those operations on the complete batch (64 in this case).
-
-So the final output of model will be of shape `[bs x sl x vocab_sz]`.
+So the final output of model will be of shape `[sl x bs x vocab_sz]`, but we can stack them to 1st dimension using `dim=1`, so it becomes-- `[bs, sl, vocab_sz]`.
 
 ```py
 # understanding stack with dim=1
@@ -202,20 +209,37 @@ tensor([[1, 2],
         [3, 4],
         [5, 6]])
 ```
-Let's say we have 4 data points, and it gave us output of 5 (vowels). 
+Let's say we have 4 data points, and it gave us output of 5 (vowels).  The shape would be `2, 5`.
 
-![image](https://github.com/akash5100/blog/assets/53405133/8f81728c-25f7-4ca1-bb2e-9c140cf32468)
+![example of vocab](https://github.com/akash5100/blog/assets/53405133/8f81728c-25f7-4ca1-bb2e-9c140cf32468)
 
-Likewise, we stack all the `64` batch and calculate the loss at one go. Since we stacked on dim=1. Here is the loss function:
+Likewise, we stack all the `64` batch and calculate the loss together. Since we stacked on `dim=1`. Here is the loss function:
 
 ```py
 def loss_func(preds, targs):
-    return F.cross_entropy(preds.view(-1, 5), targs.view(-1))
+    # targs-- bs, sl
+    # preds-- bs, sl, vocab
+    return F.cross_entropy(preds.view(-1, len(vocab)), targs.view(-1))
+    # here, 5 is the length of vocab, (= the vowels)
 ```
 
-We only have one linear layer between the hidden state and the output activations in our basic RNN, so maybe we'll get better results with more.
+Before we can compare, we need to reshape and flatten them. 
 
-**Creating Multilayer RNN**
+Let's say this is our output:
+
+![vis output shape](https://github.com/akash5100/blog/assets/53405133/19358d59-7d4b-46ff-a20a-a1d642997ada)
+
+after flattening (starting with `sl`, dim=1) it will look like:
+
+![vis output shape after flat](https://github.com/akash5100/blog/assets/53405133/c13b62d3-a55d-4632-bf78-8c4b767b3e9a)
+
+*The flattened second dim is of shape `[64 * 16, 30] = [1024, 30]`*
+
+The targets is of shape `bs, sl` = `64, 16`. We flatten them by `(-1)`. The `preds-targs` will be of shape `(6416, 30) - (6416,)`. We can use CrossEntropy loss normally in this.
+
+We only have one linear layer between the hidden state and the output activations in our basic RNN, so maybe we'll get better results with more layers.
+
+#### **Creating Multilayer RNN**
 
 In, a multilayer RNN, we pass the activations from one RNN into a second RNN.
 
@@ -264,7 +288,7 @@ learn.fit_one_cycle(15, 3e-3)
 
 It disappointing than our single layer RNN, why so? The reason is that we have a deeper model, leading to exploding or vanishing activations.
 
-**Exploding and disappearing Activations**
+#### **Exploding and disappearing Activations**
 
 In Practice, creating accurate RNN model is difficult. We will get better results if we call `detach` less often and have more layers-- this will give our RNN a longer time to learn from and richer features to create. This means our model is more deep and training this kind of deep model is a key challenge. 
 
