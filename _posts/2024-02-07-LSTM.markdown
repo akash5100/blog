@@ -1,0 +1,306 @@
+---
+title: LSTM
+tags: deeplearning
+---
+
+LSTM were designed to deal with the issue of exploding or vanishing gradients in RNNs. This is challenging because, neural nets generally struggle to learn long-term dependencies.
+
+LSTM introduces gate mechanism and has 2 hidden state, that allows information to flow unmodified over many timesteps. Each LSTM cell has a set of gates (forget, input, cell/memory and out) that carefully regulate the information into and out of the cell.
+
+The forget gate modulates what information gets discarded from the cell state. The input gate decides what new information gets stored in the cell state. And the output gate decides what information propagates to the next steps.
+
+This gated mechanism gives the LSTM cell explicit control over what is preserved, changed, or forgotten in the cell state over potentially very long sequences. This helps preserve gradient flow over multiple time steps. The key innovation is the gated cell that preserves information in tact over time.
+
+![image](https://github.com/akash5100/blog/assets/53405133/d6c6734d-4f14-4bf7-88f9-a926d075faa5)
+
+
+The first gate is called a **forget gate**. It's a linear layer followed by a sigmoid, so its output will consist of scalars btw 0 and 1. We multiply this result with the cell state **to determine which information to keep and which to throw away**: values closer to 0 are discarded and values closer to 1 are kept.
+
+The second gate is the **input gate**. It works with the third gate which is generally called **cell gate**-- to update the cell state (the second hidden state). Similar to the forget gate, the input gate decided which elements of the cell state to update (values close to 1) or not (values close to 0). The third gate determines what those updated values are, in the range of -1 to 1. (tanh). This result is added to the cell state.
+
+The last gate is the **output gate**. It determines which information from the cell state to use to generate the output. 
+
+The cell state goes through the tanh before being combined with the sigmoid output from the output gate, and this result is the new hidden state.
+
+Hidden state is used to predict next word where as cell state is used to preserve memory.
+
+```py
+class LSTMcell(Module):
+    def __init__(self, ni, nh):
+        self.forget_gate = nn.Linear(ni + nh, nh)
+        self.input_gate  = nn.Linear(ni + nh, nh)
+        self.cell_gate   = nn.Linear(ni + nh, nh)
+        self.output_gate = nn.Linear(ni + nh, nh)
+
+    def forward(self, input, state):
+        h, c = state
+        h = torch.cat([input, h], dim=1)
+        forget = torch.sigmoid(self.forget_gate(h))
+        c = c * forget
+        inp = torch.sigmoid(self.input_gate(h))
+        cell = torch.tanh(self.cell_gate(h))
+        c = c + inp * cell # final c state
+        out = torch.sigmoid(self.output_gate(h))
+        h =  out * torch.tanh(c) # final h state
+        return h, (h,c)
+```
+
+We can then refactor the code, in terms of performance, it's better to do one big matrix multiplication than four small ones (because GPU works better in doing things parallel). The stacking takes time (since we have to move one of the tensors around the GPU to have it all in a contiguous array), so we use two seperate layers for the input and the hidden state.
+
+```py
+class LSTM(Module):
+    def __init__(self, ni, nh):
+        self.i = nn.Linear(ni, nh*4)
+        self.h = nn.Linear(ni,  nh*4)
+
+    def forward(self, x, hc):
+        h, c = hc
+        i, f, g, o = (self.i(input) + self.h(h)).chunk(4, 1)
+        i, f, g, o = i.sigmoid(), f.sigmoid(), g.tanh(), o.sigmoid()
+
+        c = (f * c) + (i * g)
+        h = o * c.tanh()
+        return h, (h,c)
+```
+
+<details>
+<summary> This is how the chunk method works: </summary>
+<pre>
+    t = torch.arange(0, 10); t
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    t.chunk(2)
+    ([0,1,2,3,4], [5,6,7,8,9])
+
+    Here, It divides the 't' straight into 2 halves.  
+    For example if the matrix is 4x4 and you created chunk(2), it will give you 2x4 (upper half), 2x4 (lower half).
+    If you chunk it by (2,1), which means after every chunk, you want to leave 1 sliding window, if you visualize it, it will give you vertically first half (4x2), vertically second half (4x2).
+
+    same, if you have a 3dim shaped tensor, eg. 4x4x4.
+</pre>
+</details>
+
+
+
+---
+
+<br>
+
+## **Regularizing LSTM**
+Recurrent neural networks, in general, are hard to train, because of the problem of vanishing activations and gradients we saw before. Using LSTM (or GRU) cells makes training easier than with vanilla RNNs, but they are still very prone to overfitting.
+
+Data augmentation for text data is currently not a well-explored space.
+
+### 1. **Dropout**
+
+Dropout is a regularization technique that was introduced by Geoffrey Hinton, the basic idea is to randomly change some activations to zero at training time. This makes sure all neurons actively work toward the output.
+
+For regularization of Neural networks, if we apply dropout with a probability `p`, we rescale all activations by dividing them by `1-p` (each activations has the probabilty `p` of getting zero'ed, so `1-p` acts will be left active)
+
+> The Bernoulli distribution models the probability of success or failure in a single trial, where success (typically denoted as 1) has a probability `p` and failure (denoted as 0) has a probability `1−p`. It's commonly used for situations with **only two** possible outcomes, like flipping a biased coin or a loaded die where success might be getting a specific result like a head or a six.
+
+**Why we need to rescale the remaining activations?**
+
+When applying dropout, we randomly deactivate (set to zero) a fraction of neurons in a neural network during training. This helps prevent overfitting by forcing the network to learn redundant features. 
+
+Now, when we deactivate neurons, it reduces the overall output of the layer. To compensate for this reduction in output, we scale (multiply) the remaining activations by a factor to maintain the same output expected output. This scaling is essential to ensure that the model doesn't become overly reliant on the presence of all neurons during the training and thus maintains its ability to generalize well to unseen data.
+
+**Understanding it with an example!**
+
+When we apply dropout with probability `p`, it means that during each training iteration, each neuron in the network has a probability `p` of being "dropped out" or set to zero. This process is randomly applied and help prevent overfitting by making the network more robust and less reliant on specific neurons.
+
+Now, when we rescale all activations by dividing them by `1-p`, it means that we adjust the remaining activations to compensate for the dropout. Since, on average, a fraction `p` of neurons will be zeroed out, we need to scale up the remaining activations to maintain the same expected output. Dividing by `1-p` accomplishes this scaling, ensuring that the overall output of the layer remains consistent despite the dropout.
+
+If `x` is the activations value, after applying dropout with probability `p` the re-scaled activation `x'` would be:
+
+> x' = x / (1-p)​
+
+say, 
+
+`x = 10` (there are 10 activations), `p = 0.2`
+
+So, there will be 10 activations (randomly generate or trained)
+
+```py
+>>> torch.sigmoid(torch.randn(10))
+tensor([0.1107, 0.7174, 0.4452, 0.6757, 0.7396, 0.7361, 0.6020, 0.1646, 0.2716,
+        0.6765])
+```
+
+the activations, which are `< p` are dropped (set to zero).
+
+So in the above example, element at indices `0`, `7` which are `< 0.2` are dropped. 
+
+Next step is to calculate the rescaled activations.
+
+> 0.7, 0.4, 0.6, 0.7, 0.7, 0.6, 0.2, 0.6
+
+rescaled version of them would be:
+
+> 0.8, 0.5, 0.7, 0.8, 0.8, 0.7, 0.25, 0.7
+
+These rescaled activations **compensate** for the dropout!
+
+**Using bernoulli distribution to dropout activations in a pytorch's layer**
+
+```py
+class Dropout(Module):
+    def __init__(self, p): self.p = p
+    def forward(self, x):
+        if not x.training: return x
+        mask = x.new(*x.shape).bernoulli_(1-p)
+        return x * mask.div_(1-p) 
+
+
+>>> a = torch.randn(10)
+>>> a.new # creates new tensor with same datatype (maintains consistency)
+
+>>> a = a.new(*a.shape) # unpack the shape and create a tensor of same shape=a
+>>> a = a.bernaulli_(p) # draw random binary nums using bernaulli distribution
+>>> mask = a.div_(1-0.2) # divide each input by 1-p
+tensor([0.0000, 1.2500, 1.2500])
+# this mask contains every information that we need to dropout-- 
+# multiplying it with 0 will get 0 the acts
+# and 1.2 (for eg) will amplify them!
+
+>>> a * mask
+tensor([0.0000, 2.4414, 2.4414])
+```
+
+![image](https://github.com/akash5100/blog/assets/53405133/94cada58-ec73-4023-b27f-6e8e4530ddb0)
+
+*Bernoulli distribution-- any number to either 0 or 1*
+
+Using dropout before passing the output of our LSTM to final layer will help reduce overfitting.
+
+> FastAi also uses dropout in its default CNN head, and it is also available in its tabular module. So I think it means, dropout technique is widely applicable to train the sleeping neurons.
+
+### 2. **Activation Regularization and Temporal Activation Regularization**
+
+In [weight decay](https://akash5100.github.io/blog/deeplearning/2024/01/15/embeddings.html), to aim to make the weights as small as possible (we do this by add a small penalty to the loss, which results in increasing the gradient which results in weights getting small in order to reduce the loss).
+
+In **Activation regularization (AR)**, we will try to make the final activations produced by the LSTM as small as possible! (instead of weights)
+
+We can do this by adding the `means` of the `squares` of the `activations` along with a multiplier `alpha` (which is like wd for weight decay).
+
+`loss += alpha * acts.pow(2).mean()`
+
+**Temporal Activation Regularization (TAR)** is linked to the fact we are predicting tokens in a sentence. That means it's likely that the outputs of our LSTM model should somewhat make sense when we read them in order. TAR encourages this behavior by adding a penalty to the loss to make the difference **between two consecutive activations** as small as possible. 
+
+We calculate the difference between every consecutive activations: (remember, activations in a layer are just another matrix, a stacked batch of matrices)
+
+`loss += beta * (acts[:, 1:] - acts[:, :-1]).pow(2).mean()`
+
+`alpha` and `beta` are two hyperparameters to tune. To make this work, we need our model with dropout to return 3 things:
+- proper output
+- activations of LSTM pre-dropout
+- activations of LSTM post-dropout
+
+**AR** is often applied on the dropped-out (post) acts-- ensuring we only penalize the activations that are used (not zeros).
+
+While **TAR** is often applied on the non-dropped-out (pre) acts-- because zeros in the dropped out acts create big differences between two consecutive acts.
+
+**Weight-tied Regularized LSTM**
+
+An useful trick that can be applied from AWD-LSTM paper is *weight tying*[^1][^2]
+
+```py
+class LMModel(nn.Module):
+    def __init__(self, n_hidden, n_layers, vocab_sz, p):
+        self.i_h = nn.Embedding(vocab_sz, n_hidden)
+        self.rnn = nn.LSTM(n_hidden, n_hidden, n_layers, batch_first=True)
+        self.drop = nn.Dropout(p)
+        self.h_o = nn.Linear(n_hidden, vocab_sz)
+        self.h_o.weight =  self.i_h.weight #weight tying: AWD-LSTM
+        # using the same embedding weight matrix in the output
+        self.h = [torch.zeros(n_layers, bs, n_hidden) for _ in range(2)]
+
+    def forward(self, x):
+        raw, h = self.rnn(self.i_h(x), self.h)
+        out = self.drop(raw)
+        self.h = [h_.detach() for h_ in h]
+        return self.h_o(out), raw, out
+
+    def reset(self): for h in self.h: h.zero_()
+
+model = LMModel7(len(vocab), 64, 2, 0.5)
+```
+
+```py
+# Adding AR and TAR regularization
+class RNNRegularizer:
+    def __init__(self, model: nn.Module, alpha=0., beta=0.): 
+        self.alpha, self.beta = alpha, beta
+        self.m = model
+    def after_loss(self):
+        if not self.model.train(): return
+        if self.alpha: # adding mean of the squares along with a multiplier alpha.
+            for p in self.m.parameters():
+                p.grad += self.alpha * p.data.pow(2).mean()
+        if self.beta:
+            for name, module in self.model.named_modules()
+                h = module.raw_out
+                if len(h) > 1:
+                    diff_mean = (h[:, 1:] - h[:, :-1]).float().pow(2).mean()
+                    for p in module.parameters():
+                        p.grad += self.beta * diff_mean
+
+reg = RNNRegularizer(model, 2, 1)
+loss.backward()
+reg.after_loss()
+optim.step()
+```
+
+AWD-LSTM architecture uses dropout in a lot more places:
+- embedding dropout (just after the embedding layer)
+- input dropout (after the embedding layer concat with input)
+- weight dropout (weights of the LSTM at each training step)
+- hidden dropout (hidden state between two layers)
+
+This makes it even more regularized.
+
+> **Fastai's implementation**: Since fine-tuning those five dropout values (including the dropout before the output layer) is complicated, we have determined good defaults and allow the magnitude of dropout to be tuned overall with the `drop_mult` parameter you saw (which is multiplied by each dropout). <br> let's implement this from scratch later.
+
+### Gradient Clipping (good to know)
+Gradient clipping is a technique that is used to prevent the exploding gradient problem during the training of deep neural networks. 
+
+working:
+- the error gradient is clipped to a threshold during the backward pass
+- the clipped grads are used to update the weights.
+
+problem with gradient clipping:
+- gradient clipping can result in changing of the direction of gradient in the plane, which results in wrong local minima.
+
+This is a tradeoff.
+
+## **Summary-- without AWD-LSTM**
+- each word is associated with `n_hidden` latent factors.
+- words are passed through an embedding layer of size `30 x 64`, representing `vocab sz` and `n_hidden` dimensions.
+- In our LSTM architecture, input sequences are structured as `64 x 16` matrices, where `16` is the sequence length of each input, and `64` is the batch size.
+- Each word is transformed into embeddings of shape `64 x 16 x 64` (there are `16` words in each input and `bs=64`)
+- Hidden states are initialized with dimensions of `n_layers x bs x n_hidden`, n_layers is the number of RNN layer stacked in pytorch, here set are `2 x 64 x 64`.
+- LSTM updates both the cell state (c) and the hidden state (h) within its layers
+    - (how?)
+    - input `x` which is now `64 x 16 x 64` is concatenated with hidden state
+    - we decide the size of hidden state as: `n_layers x bs x n_hidden`. One for each layer, and for each batch.
+    - the concatenate will be of shape: `64 x 16 x (64 + 64) = 64 x 16 x 128`. 
+    - we also create a `cell state` of same shape.
+    - `f * c`-- to forget bunch of thing
+    - `i * g`-- which part of the memory to update and what values to insert in that update.
+    - `c = (f * c) + (i * g)` -- perform the actual update
+    - produce output with tanh, deciding the filtering.
+- Essentially, the LSTM processes and updates information of these states, that we created.
+
+- Three types of regularization we use in RNNs
+    - Dropout
+    - Activation Regularization (AR)
+    - Temporal Activation Regularization (TAR)
+    - AWD-LSTM uses all three.
+- Weight-tied LSTM (introduced in the AWD-LSTM paper)-- we use same weight matrix that we used in the input embedding in the output
+    `self.ho.weight = self.ih.weight`
+- Gradient clipping
+
+**Sources**
+
+[^1]: [weight tying](https://paperswithcode.com/method/weight-tying)
+[^2]: [AWD-LSTM](https://arxiv.org/abs/1708.02182)
