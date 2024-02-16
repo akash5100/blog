@@ -1,0 +1,72 @@
+---
+title: GRU
+tags: deeplearning
+---
+
+GRU was first proposed in 2014 (RNN was in 1986, LSTM in 1995). 
+GRU raised the question of whether we need to be that flexible like LSTM to learn the sequence. GRU is less flexible than LSTM but it is good enough for sequence learning. 
+
+GRU redesigned the LSTM cell by introducing reset gate, update gate, and new memory cell; therefore, the number of gates were reduced from four to three. It was empirically shown in (Chung et al., 2014) that the performance of LSTM improves by using GRU cells. Later in 2017, the GRU was further simplified by merging the reset and update gates into a forget gate (Heck & Salem, 2017). Nowadays, GRU is the most commonly used LSTM structure.
+
+GRU simplified the LSTM cell in order to make the flexibility of LSTM.
+
+![image](https://github.com/akash5100/blog/assets/53405133/93c85c93-6274-4fd7-9459-1ffec6119604)
+
+*above, both **h(t-1)** are same-- to simplify the arrows*
+
+**Coding the structure**
+
+```py
+class GRUCell(nn.Module):
+    def __init__(self, n_in, n_hidden):
+        pass
+```
+
+### 1. Reset Gate
+The reset gate considers the effect of the input `x (t)` and the previous hidden state `h (t-1)` and outputs the signal:
+
+`r = sig(W * h(t-1) + U * x(t) + b)`
+
+ where `W` and `U` are trainable weight matrix and the Bias `b`. It controls the **amount of forgetting/resetting** the **previous information** with respect to the new-coming information.
+
+### 2. Update Gate
+This gate also takes the input `x (t)` and the previous hidden state `h (t-1)` and outputs the signal:
+
+`z = sig(W * h(t-1) + U * x(t) + b)`
+
+It controls the **amount of using the new input data** for updating the cell by the coming information of sequence.
+
+### 3. Memory Cell
+This gate takes the input at current time slot, `x(t)`, and the hidden state of the last time slot, `h(t−1)` and outputs the signal:
+
+`H = tanh(W * (r * h(t-1)) + U * x(t) + b)`
+
+where `W`, `U`, and the bias `b` are the learnable weights for the new memory cell.
+
+This gate **considers** the effect of the input and the previous hidden state to **represent** the new information of current input.
+
+The new memory cell in the GRU cell is similar to the new memory cell in the LSTM cell. Note that, in the LSTM cell, the hidden state and the new memory cell were different; however, the hidden state of the GRU cell replaces the new memory signal in the LSTM cell.
+
+### 4. Final Memory
+
+After the computations of outputs of the update gate (z) and the new memory cell (H), we calculate the final memory or the hidden state `(h(t))`.
+
+    h(t) = (1-z) * h(t-1) + z * H
+
+Where:
+- h(t−1) is the previous hidden state.
+- z is the output of the update gate.
+- H is the output of the new memory cell.
+
+This equation combines the **previous hidden state** *with* the **new memory cell** based on the output of the update gate. 
+
+If the update gate outputs a value close to 1, indicates high activations. This means that the model has decided to rely more on the new input data for updating the hidden state based on the current input.
+
+When the output of the update gate (z) is close to 0, it means that the model has decided to rely more on the previous hidden state h(t−1) and less on the new input data x(t) for updating the cell state h(t). In this case 1 -z is close to 1, indicating that the model is giving less weight to the new input data and more to the previous hidden state.
+
+So, to calculate the final memory, we multiply the previous hidden state by (1−z) to control the amount of information carried over from the previous time step, and add z∗H to incorporate the new information based on the update gate's decision.
+
+## Summary
+An analogy to understand `+` and `x` of activation matrices:
+
+- In LSTM and GRU networks, adding (+) matrices is like mixing colors to create new shades, while multiplying (*) matrices is like adjusting the brightness or intensity of those colors.
