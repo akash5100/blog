@@ -11,8 +11,8 @@ The forget gate modulates what information gets discarded from the cell state. T
 
 This gated mechanism gives the LSTM cell explicit control over what is preserved, changed, or forgotten in the cell state over potentially very long sequences. This helps preserve gradient flow over multiple time steps. The key innovation is the gated cell that preserves information in tact over time.
 
-![image](https://github.com/akash5100/blog/assets/53405133/d6c6734d-4f14-4bf7-88f9-a926d075faa5)
-
+![image](https://github.com/akash5100/blog/assets/53405133/9740f3a7-0d61-42ab-94ed-69374a58944b)
+*image*[^3]
 
 The first gate is called a **forget gate**. It's a linear layer followed by a sigmoid, so its output will consist of scalars btw 0 and 1. We multiply this result with the cell state **to determine which information to keep and which to throw away**: values closer to 0 are discarded and values closer to 1 are kept.
 
@@ -304,3 +304,4 @@ This is a tradeoff.
 
 [^1]: [weight tying](https://paperswithcode.com/method/weight-tying)
 [^2]: [AWD-LSTM](https://arxiv.org/abs/1708.02182)
+[^3]: [RNN Survery Paper](https://arxiv.org/pdf/2304.11461.pdf)
