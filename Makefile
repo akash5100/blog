@@ -1,10 +1,16 @@
-.PHONY: start clean build
+.PHONY: start clean build run
 
 start:
-	docker run -it -p 4000:4000 --rm -v "$(PWD):/srv/jekyll" blog-iie sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
+	docker run -it -p 4000:4000 -v "$(PWD):/srv/jekyll" blog sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
 
 clean:
-	docker rmi -f blog-iie
+	docker rmi -f blog
 
 build:
-	docker build -t blog-iie --build-arg BUNDLE_INSTALL=true .
+	docker build -t blog --build-arg BUNDLE_INSTALL=true .
+
+run:
+	docker container start $(CONTAINER_NAME)
+
+stop:
+	docker container stop $(CONTAINER_NAME)

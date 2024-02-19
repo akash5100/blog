@@ -1,5 +1,5 @@
 ---
-title: loss_func for multi-label data, training a NN on Titanic dataset
+title: Cross entropy
 categories: deeplearning
 ---
 
