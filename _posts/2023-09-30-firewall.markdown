@@ -12,7 +12,7 @@ I worked around [Iptables](https://linux.die.net/man/8/iptables) a default firew
 I was deploying a Teamspeak server. 
 
 
-**Thank you chatGPT**:
+Thank you chatGPT:
 ```md
 The default ports for a TeamSpeak server are as follows:
 
@@ -70,6 +70,3 @@ In addition to these iptables commands, I've also found it valuable to implement
 4. and reboot instance.
 
 with this, iptable will stop blocking (YOUR) malicious and hostile data packets.
-
-ROCK N ROLL!
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4feXJ5IC3avXsVW9WNFSag?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>

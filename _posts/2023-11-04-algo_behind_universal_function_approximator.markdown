@@ -80,8 +80,8 @@ We feed the original inputs to a layer of neurons, each with their own weight an
 
 We now have to find out, what changes we can make to weights and biases of these neural net to reduce the loss. As we dont know what the function is in the neuron, we need to make changes to weights to see that if that change makes the loss go up or down. (Bruh! millions of neuron and for each neuron how many calculations???)
 
-Calculating Gradient
----
+**Calculating Gradient**
+
 The one magic step is the bit where we calculate the gradients. We use calculus as a performance optimization; it allows us to more quickly calculate whether our loss will go up or down when we adjust our parameters up or down. In other words, the gradients will tell us how much we have to change  each weight to make our neural net better. Derivative of a function tells you how much a change in its parameters will change its result. The key point about a derivative is this: for any function, such as the quadratic function, we can calculate its derivative. The derivative is another function. It calculates the change, rather than the value. For instance, the derivative of the quadratic function at the value 3 tells us how  rapidly the function changes at the value 3. More specifically, you may recall that  gradient is defined as rise/run; that is, the change in the value of the function, divided  by the change in the value of the parameter. 
 
 When we know how our function will change, we know what we need to do to make it smaller. This is the key to machine  learning: having a way to change the parameters of a function to make it smaller. Calculus  provides us with a computational shortcut, the derivative, which lets us directly  calculate the gradients of our functions.
@@ -99,6 +99,3 @@ Here are the steps:
 adding some flavor to Gradient Decent makes it Stochastic gradient descent (SGD).
 
 ChatGPT: Stochastic Gradient Descent (SGD) is like spice in the recipe of Gradient Descent. In standard Gradient Descent, you calculate the average gradient using the entire dataset, which can be computationally expensive. In SGD, you spice things up by randomly selecting a single data point or a small batch of data points for each iteration. This randomness introduces noise, but it speeds up the process, making it more like a spicy, fast-paced version of Gradient Descent.
-
-
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2zYzyRzz6pRmhPzyfMEC8s?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>

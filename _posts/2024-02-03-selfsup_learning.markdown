@@ -1,5 +1,5 @@
 ---
-title: Self-Supervised learning and Transfer learning (feat. LM)
+title: Self-Supervised & Transfer Learning in Language Models
 categories: deeplearning
 ---
 

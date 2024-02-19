@@ -1,5 +1,5 @@
 ---
-title: GRU
+title: Simplified LSTM-- Gated Recurrent Unit
 tags: deeplearning
 ---
 

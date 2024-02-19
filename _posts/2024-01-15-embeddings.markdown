@@ -1,5 +1,5 @@
 ---
-title: Everything that I learned about Embeddings
+title: Embeddings in Recommendation Systems
 categories: deeplearning
 ---
 

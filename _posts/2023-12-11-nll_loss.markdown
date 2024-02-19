@@ -1,5 +1,5 @@
 ---
-title: You ignored Logarithms at school?
+title: Logarithms in Deep Learning
 categories: deeplearning
 ---
 

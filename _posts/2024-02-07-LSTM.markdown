@@ -1,5 +1,5 @@
 ---
-title: LSTM
+title: Long Short-Term Memory
 tags: deeplearning
 ---
 

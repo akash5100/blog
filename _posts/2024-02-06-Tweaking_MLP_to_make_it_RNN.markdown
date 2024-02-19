@@ -1,5 +1,5 @@
 ---
-title: Creating RNN and making it stateful
+title: Stateful Recurrent Neural Network
 categories: deeplearning
 ---
 

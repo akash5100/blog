@@ -1,5 +1,5 @@
 ---
-title: Using an Embedding in Neural Network
+title: Embeddings in sequential Neural Network
 categories: deeplearning
 ---
 
