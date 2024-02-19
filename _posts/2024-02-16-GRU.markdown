@@ -17,26 +17,24 @@ GRU simplified the LSTM cell in order to make the flexibility of LSTM.
 **Coding the structure**
 
 ```py
-class GRUCell(nn.Module):
-    def __init__(self, n_in, n_hidden):
-        pass
+TODO
 ```
 
-### 1. Reset Gate
+**1. Reset Gate**
 The reset gate considers the effect of the input `x (t)` and the previous hidden state `h (t-1)` and outputs the signal:
 
 `r = sig(W * h(t-1) + U * x(t) + b)`
 
  where `W` and `U` are trainable weight matrix and the Bias `b`. It controls the **amount of forgetting/resetting** the **previous information** with respect to the new-coming information.
 
-### 2. Update Gate
+**2. Update Gate**
 This gate also takes the input `x (t)` and the previous hidden state `h (t-1)` and outputs the signal:
 
 `z = sig(W * h(t-1) + U * x(t) + b)`
 
 It controls the **amount of using the new input data** for updating the cell by the coming information of sequence.
 
-### 3. Memory Cell
+**3. Memory Cell**
 This gate takes the input at current time slot, `x(t)`, and the hidden state of the last time slot, `h(t−1)` and outputs the signal:
 
 `H = tanh(W * (r * h(t-1)) + U * x(t) + b)`
@@ -47,7 +45,7 @@ This gate **considers** the effect of the input and the previous hidden state to
 
 The new memory cell in the GRU cell is similar to the new memory cell in the LSTM cell. Note that, in the LSTM cell, the hidden state and the new memory cell were different; however, the hidden state of the GRU cell replaces the new memory signal in the LSTM cell.
 
-### 4. Final Memory
+**4. Final Memory**
 
 After the computations of outputs of the update gate (z) and the new memory cell (H), we calculate the final memory or the hidden state `(h(t))`.
 
@@ -66,7 +64,9 @@ When the output of the update gate (z) is close to 0, it means that the model ha
 
 So, to calculate the final memory, we multiply the previous hidden state by (1−z) to control the amount of information carried over from the previous time step, and add z∗H to incorporate the new information based on the update gate's decision.
 
-## Summary
-An analogy to understand `+` and `x` of activation matrices:
+### Summary
 
-- In LSTM and GRU networks, adding (+) matrices is like mixing colors to create new shades, while multiplying (*) matrices is like adjusting the brightness or intensity of those colors.
+`To be added`
+
+- An analogy to understand `+` and `x` of activation matrices:
+    - In LSTM and GRU networks, adding (+) matrices is like mixing colors to create new shades, while multiplying (*) matrices is like adjusting the brightness or intensity of those colors.
