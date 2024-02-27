@@ -23,7 +23,7 @@ def script():
     # Create the new blog post file
     file_name = title + handle_spaces(x)
 
-    file_path = os.path.join("_posts", file_name + ".markdown")
+    file_path = os.path.join("_posts", file_name + ".md")
 
     with open(file_path, "w") as file:
         file.write("---\n")
