@@ -80,7 +80,7 @@ epoch:      50/    200 | loss: 2.8150 | perplexity: 16.6932
 Firstly, I want to explain why we need to initialize the weights of our model with good values. As observed, the initial loss is very high, and then subsequent losses are very low. The weights we initialized are significantly incorrect, as some are very confidently wrong while others can be overly confident. This necessitates spending time and computational resources to correct them before starting unbiased learning. Thus, improving parameter initialization can help us skip this unnecessary step, which otherwise wastes energy and computation.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/badinit.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/badinit.png" alt='Hockey stick loss which is due to bad initial weights initialization'>
   <figcaption>Hockey stick loss which is due to bad initial weights initialization</figcaption>
 </figure>
 
@@ -90,7 +90,7 @@ Let's visualize the logits in a histogram:
 plt.hist(logits.tolist(), 50);
 ```
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/badlogits.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/badlogits.png" alt='Logits values are too big to converge'>
   <figcaption>Logits values are too big to converge</figcaption>
 </figure>
 
@@ -109,15 +109,15 @@ plt.hist(logits[0].tolist(), 50);
 ```
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/goodlogits.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/goodlogits.png" alt='Logits values are near zero'>
   <figcaption>Logits values are near zero</figcaption>
 </figure>
 
 We should not initialize weights with zero, just as the bias, because this would cause all neurons to update in the same way, resulting in symmetric and redundant weights throughout the training process.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/goodloss.png">
-  <figcaption>isn't this better than a hockey stick?</figcaption>
+  <img src="{{site.baseurl}}/assets/deadneurons/goodloss.png" alt='better than a hockey stick loss'>
+  <figcaption>isn't this better than a hockey stick loss?</figcaption>
 </figure>
 
 #### **Peeking inside a hidden layer**
@@ -162,7 +162,7 @@ plt.hist(h.view(-1).tolist(), 50);
 ```
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/saturatedtanh.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/saturatedtanh.png" alt='Saturated Tanh'>
   <figcaption>Saturated Tanh</figcaption>
 </figure>
 
@@ -179,7 +179,7 @@ plt.hist(h.view(-1).tolist(), 50);
 ```
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/goodtanh.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/goodtanh.png" alt='better Tanh'>
   <figcaption>better Tanh</figcaption>
 </figure>
 
@@ -204,7 +204,7 @@ plt.imshow((h.abs()<0.99).tolist(), cmap='gray')
 ```
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/hplot.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/hplot.png" alt='Visualization of Hidden Layer Activations with Tanh Function'>
   <figcaption>Visualization of Hidden Layer Activations with Tanh Function</figcaption>
 </figure>
 
@@ -213,7 +213,7 @@ In this plot, white cells indicate dead neurons. If a complete column is white, 
 Similar issues occur with other activation functions, such as Sigmoid, Relu, and ELU, because they also have a squashing plane. A research paper (<https://arxiv.org/pdf/1502.01852.pdf>) extensively studied this phenomenon, particularly in the context of Relu and PRelu in convolutional neural nets. They found that if a Relu neuron never activates for any input *in the dataset*, its weights and biases will never receive gradients, rendering it ineffective. Conversely, if it receives excessively large gradients (possible with high learning rates), it will be knocked out of the data manifold, preventing it from learning from the rest of the training data.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/deadneurons/acts.png">
+  <img src="{{site.baseurl}}/assets/deadneurons/acts.png" alt='Activations'>
   <figcaption>Activations</figcaption>
 </figure>
 
