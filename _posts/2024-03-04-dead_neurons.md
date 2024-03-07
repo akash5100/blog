@@ -120,7 +120,7 @@ We should not initialize weights with zero, just as the bias, because this would
   <figcaption>isn't this better than a hockey stick loss?</figcaption>
 </figure>
 
-#### **Peeking inside a hidden layer**
+### **Peeking inside a hidden layer**
 
 The second issue I want to address concerns the hidden layer. Consider the forward pass
 
@@ -243,7 +243,7 @@ tensor(2.0032)
 
 So, the standard deviation of the matrix changes based on the number we multiply.
 
-### But how can we decide which number to multiply? 
+### **But how can we decide which number to multiply?**
 
 It turns out there's a mathematical principle. For example, in Relu, half of the data is discarded to 0 for any input in the dataset. We can then amplify the remaining half of the data with a `gain`. Most researchers currently use the square root of the `fan-in` to multiply with the weights (as mentioned above). The fan-in represents the input features of a layer.
 
@@ -262,5 +262,5 @@ PyTorch calculates the gain as follows: <https://pytorch.org/docs/stable/nn.init
 
 A gain might be necessary because activation functions like Relu and Tanh squash the input. Researchers today typically use the **square root of the fan-in** to multiply with the weights, as demonstrated above. Because there are other normalization techniques such as batch normalization. instance normalization, layer normalization, group normalization and stronger optimization algorithms besides stochastic gradient descent, such as **RMS Prop** and **Adam**.
 
-### Summary
+### **Summary**
 The activation function squashes the weights, so we should be concerned about how we initialize them. For example, in the tanh function, we don't want them to saturate to one or negative one. To maintain good performance, we normalize them with a gain, which can typically be found as the square root of the fan-in. There are additional mathematical principles to consider, such as the Kaiming initialization, which also utilizes a gain multiplied by a constant for different activations like Sigmoid, Linear, and ReLU.
