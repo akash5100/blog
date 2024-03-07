@@ -1,6 +1,6 @@
 ---
 title: Embeddings in sequential Neural Network
-categories: deeplearning
+tags: deeplearning
 ---
 
 Alright who cares about the follow up blog, [here](https://akzsh.notion.site/Tabular-Data-analysis-and-Decision-Tree-9444c1ca59d7464dbc91e7cb6cb243fc?pvs=4) is a notion notes to save me. This is the notes for tweaking Random forest on a tabular dataset to squeeze some performance, I tried this on a [Kaggle compe](https://www.kaggle.com/competitions/store-sales-time-series-forecasting/leaderboard) and it worked out pretty badly. Score of something like 2.xx. Maybe I Will improve it when time comes. zzz

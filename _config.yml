@@ -22,7 +22,7 @@ title: AmreV
 email: akashzsh08@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Documenting my deeplearning journey and a home for my poorly researched ideas that I find myself repeating often anyway
-baseurl: "/" # the subpath of your site, e.g. /blog
+baseurl: "/blog" # the subpath of your site, e.g. /blog
 url: "https://akash5100.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: akzsh5100
 github_username:  akash5100

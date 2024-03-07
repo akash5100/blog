@@ -1,6 +1,6 @@
 ---
 title: Stateful Recurrent Neural Network
-categories: deeplearning
+tags: deeplearning
 ---
 
 If we have data like: (from the example of previous blog)

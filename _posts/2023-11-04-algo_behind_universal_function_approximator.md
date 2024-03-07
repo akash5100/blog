@@ -1,6 +1,6 @@
 ---
 title: Algorithm behind universal function approximator
-categories: deeplearning
+tags: deeplearning
 ---
 
 A artificial neural network can learn (almost) anything, and so its called a universal function approximator. To understand how it works, we need to know function.
