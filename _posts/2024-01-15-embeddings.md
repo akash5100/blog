@@ -3,7 +3,7 @@ title: Embeddings in Recommendation Systems
 tags: deeplearning
 ---
 
-I will write a follow up blog about Regression and Random Forest, today completes the half of the first month of 2024, I learned lots of stuffs that I am interested and participated on a Kaggle compe, predicing Energy consumption and production using solar panels, just to try what I learned and now I am one step closer to understanding the "Attention". To whoever reads this (other than me) I started writing blogs as creating notes to what I learned, example, I learned about neural net's neurons and wrote a blog on it, talking to myself, but if you read some other blog of mine or reading this, or will read after this, then-- thank you, I will continue this journey and still be writing this blog for future me like creating notes, maybe in more readable (and understandable to others) form.
+I will write a follow up blog about Regression and Random Forest, today completes the half of the first month of 2024, I learned lots of stuffs that I am interested and participated on a Kaggle compe, predicing Energy consumption and production using solar panels, just to try what I learned and now I am one step closer to understanding the "Attention". I will continue this journey and still be writing this blog for future me like creating notes, maybe in more readable form.
 
 -------
 <br/>
