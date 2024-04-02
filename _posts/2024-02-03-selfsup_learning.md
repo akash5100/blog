@@ -73,7 +73,7 @@ The main steps can be named as:
 Next, I would be creating notes on Tokenization and Numericalization.
 
 
-**Sources**
+### Sources
 
 [^1]: [Fastai blog post](https://www.fast.ai/posts/2020-01-13-self_supervised.html)
 [^2]: [Jurgen introduced it way before](https://people.idsia.ch/~juergen/FKI-126-90_(revised)bw_ocr.pdf)

@@ -3,6 +3,11 @@ title: Batch Normalization
 tags: deeplearning
 ---
 
+# Table of contents
+
+- [Strange output of coupling](#strange-output-of-coupling)
+- [Source](#source)
+
 Understanding why training deep neural networks can be fragile is crucial. Issues like dead neurons or saturation of non-linearity, and the vanishing or exploding gradients have caused problem for deep learning for years. However, there's a beacon of hope that emerged around 2015: Batch Normalization.
 
 Here is a visualization of problem using graph. Say we have 1000 datapoints and each has 500 embeddings (latent factors).
@@ -57,7 +62,7 @@ H9 -> mean: -0.0001, std:  0.0000
 ```
 
 <figure>
-  <img src="{{site.baseurl}}/assets/Batch_Normalization/squashing_activations.png" alt='Visualization showing hidden activations being squashed, a phenomenon known as neuron saturation'>
+  <img src="{{site.baseurl}}/assets/Batch_Normalization/squashing_activations.png" alt='Visualization showing hidden activations being squashed, a phenomenon known as neuron saturation' height=300px>
   <figcaption>Visualization showing hidden activations being squashed, a phenomenon known as neuron saturation</figcaption>
 </figure>
 
@@ -72,7 +77,7 @@ The Batch Normalization paper marked a significant milestone in deep learning. I
 As shown above in a tanh activation: if the weights are too large, activations saturate at 1 and -1, and if they're too close to zero, they saturate in the middle. Neither scenario is ideal.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/Batch_Normalization/bn_paper.png" alt='Image from the original BatchNorm paper'>
+  <img src="{{site.baseurl}}/assets/Batch_Normalization/bn_paper.png" alt='Image from the original BatchNorm paper' height=400px>
   <figcaption>Image from the original BatchNorm paper</figcaption>
 </figure>
 
@@ -116,7 +121,7 @@ We could think that this is a bug, but it's actually good for training and neura
 
 It works so well. which made it hard to move on to different techniques because no one likes the property of coupling batches but it is the first Normalization layer technique. It has regularization effect, stable training. It worked quite well. Because of The regularization effect.
 
-### **Strange output of coupling**
+### Strange output of coupling
 
 Let's say we trained a model and we want to deploy how can we do that if in the forward pass expects a mean and standard deviation of batch? That means it expects a batch as an input and not a data point. So the authors of the research paper proposed this solution:
 
@@ -252,7 +257,7 @@ epoch    1900/20000   |   loss: 2.5848   |   perx: 13.2610
 epoch    2000/20000   |   loss: 2.1021   |   perx: 8.1833
 ```
 
-### **Source**
+### Source
 
 - Inspired from this [lecture](https://www.youtube.com/watch?v=P6sfmUTpUmc&list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ&index=4&t=5213s).
 - Complete implementation: [github link](https://github.com/akash5100/ai-notebooks/blob/main/bigram/part3_batchnorm.ipynb)
