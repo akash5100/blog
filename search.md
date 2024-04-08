@@ -4,6 +4,7 @@ layout: default
 
 <style>
 #search-input {
+  width: 100%;
   padding: 10px;
   margin-bottom: 30px;
   border: 1px solid #ccc;

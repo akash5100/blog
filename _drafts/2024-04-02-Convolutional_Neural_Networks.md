@@ -11,7 +11,7 @@ So what changes? ConvNet architecture make the explicit assumption that the inpu
 
 **Recall**: Regular neural nets. Neural nets takes an input (a single vector) and transform it through a series of hidden layers. Each neuron is fully connected to all neurons in the previous layer. Where neurons in a single layer function completely independently. Do not share any connection. At the end it has an output layer which represents the class scores.
 
-**Regular Neural Nets don’t scale well to full images**. In CIFAR-10, images are only of size 32x32x3 (32 wide, 32 high, 3 color channels), so a single fully-connected neuron in a first hidden layer of a regular Neural Network would have 32*32*3 = 3072 weights. This amount still seems manageable, but clearly this fully-connected structure does not scale to larger images. For example, an image of more respectable size, e.g. 200x200x3, would lead to neurons that have 200*200*3 = 120,000 weights. Moreover, we would almost certainly want to have several such neurons, so the parameters would add up quickly! Clearly, this full connectivity is wasteful and the huge number of parameters would quickly lead to overfitting.
+**Regular Neural Nets don’t scale well to full images**. In CIFAR-10, images are only of size 32x32x3 (32 wide, 32 high, 3 color channels), so a single fully-connected neuron in a first hidden layer of a regular Neural Network would have 32x32x3 = 3072 weights. This amount still seems manageable, but clearly this fully-connected structure does not scale to larger images. For example, an image of more respectable size, e.g. 200x200x3, would lead to neurons that have 200x200x3 = 120,000 weights. Moreover, we would almost certainly want to have several such neurons, so the parameters would add up quickly! Clearly, this full connectivity is wasteful and the huge number of parameters would quickly lead to overfitting.
 
 **3D volumes of neurons**. Convolutional Neural Networks take advantage of the fact that the input consists of images and they constrain the architecture in a more sensible way. In particular, unlike a regular Neural Network, the layers of a ConvNet have neurons arranged in 3 dimensions: width, height, depth. (Note that the word depth here refers to the third dimension of an activation volume, not to the depth of a full Neural Network, which can refer to the total number of layers in a network.) For example, the input images in CIFAR-10 are an input volume of activations, and the volume has dimensions 32x32x3 (~RGB) (width, height, depth respectively). The neurons in a layer will only be connected to a small region of the layer before it, instead of all of the neurons in a fully-connected manner. Moreover, the final output layer would for CIFAR-10 have dimensions 1x1x10, because by the end of the ConvNet architecture we will reduce the full image into a single vector of class scores, arranged along the depth dimension. Here is a visualization:
 
@@ -67,13 +67,13 @@ CONV Layer is the core building block of CNNs that does the most computational h
 
 *Example 1*. For example, let's consider a scenario where the input volume has dimensions [32x32x3] (W, H, D). If we have a receptive field (filter size) of 5x5, then each neuron in the convolutional layer would have weights associated with a [5x5x3] region in the input volume *for a total of 5*5*3 = 75 weights (and +1 bias parameter)*. Here, the "3" corresponds to the D of the input volume, representing the three color channels.
 
-*Example 2*. Suppose an input volume had size [16x16x20]. Then using an example receptive field size of 3x3, every neuron in the Conv Layer would now have a total of [3x3x20] 3*3*20 = 180 connections to the input volume. Notice that, again, the connections are limited to nearby areas in 2D space (e.g. 3x3), but they full cover the entire depth of the input volume (20).
+*Example 2*. Suppose an input volume had size [16x16x20]. Then using an example receptive field size of 3x3, every neuron in the Conv Layer would now have a total of [3x3x20] 3x3x20 = 180 connections to the input volume. Notice that, again, the connections are limited to nearby areas in 2D space (e.g. 3x3), but they full cover the entire depth of the input volume (20).
 
 <hr>
 
 <figure style="padding: 12px;">
   <img src="{{site.baseurl}}/assets/Convolutional_Neural_Networks/depth.png" alt='depth'>
-  <figcaption>Notice, INPUT: 32x32x<b>3</b> -> FILTER: 6*5x5x<b>3</b> -> ACTIVATION MAP: 28x28x<b>6</b> -> FILTER: 10*5x5x<b>6</b> -> ACTIVATION MAP: 24x24x<b>10</b> </figcaption>
+  <figcaption>Notice, INPUT: 32x32x<b>3</b> -> FILTER: 6 x 5x5x<b>3</b> -> ACTIVATION MAP: 28x28x<b>6</b> -> FILTER: 10 x 5x5x<b>6</b> -> ACTIVATION MAP: 24x24x<b>10</b> </figcaption>
 
 </figure>
 
@@ -88,21 +88,31 @@ CONV Layer is the core building block of CNNs that does the most computational h
 
 3. As we will soon see, sometimes it will be convenient to pad the input volume with zeros around the border. The size of this **zero-padding** is a hyperparameter. The nice feature of zero padding is that it will allow us to control the spatial size of the output volumes (most commonly as we’ll see soon we will use it to exactly preserve the spatial size of the input volume so the input and output width and height are the same).
 
-We can compute the spatial size of the output volume as a function of the input volume size (**W**), the receptive field size of the Conv Layer neurons (**F**), the stride with which they are applied (**S**), and the amount of zero padding used (**P**) on the border. You can convince yourself that the correct formula for calculating how many neurons “fit” is given by (W−F+2P)/S+1. For example for a 7x7 input and a 3x3 filter with stride 1 and pad 0 we would get a 5x5 output. With stride 2 we would get a 3x3 output.
 
-*Use of zero-padding*
-Let's say in the above example, the image size is 32x32 if we pad the image with 2 pixels at the end that would make it, 36x36. Now if the apply the same filter (5x5) the output would be (W-F+2P)/S + 1 = 36-5+1 = 32. It preserved the input shape, when the stride is **S=1** ensures that the input volume and output volume will have the same size spatially. It is very common to use zero-padding in this way.
-
-*Constraints on strides*
+We can compute the spatial size of the output volume as a function of the input volume size (**W**), the receptive field size of the Conv Layer neurons (**F**), the stride with which they are applied (**S**), and the amount of zero padding used (**P**) on the border. You can convince yourself that the correct formula for calculating how many neurons “fit” is given by 
 <div>
-"Note again that the spatial arrangement hyperparameters have mutual constraints. For example, when the input has size \( W = 10 \), no zero-padding is used \( P = 0 \), and the filter size is \( F = 3 \), then it would be impossible to use stride \( S = 2 \), since
-
-\[
-\frac{{(W - F + 2P)}}{S} + 1 = \frac{{(10 - 3 + 0)}}{2} + 1 = 4.5
-\]
-
-i.e. not an integer, indicating that the neurons don’t “fit” neatly and symmetrically across the input. Therefore, this setting of the hyperparameters is considered to be invalid, and a ConvNet library could throw an exception or zero-pad the rest to make it fit, or crop the input to make it fit, or something. As we will see in the ConvNet architectures section, sizing the ConvNets appropriately so that all the dimensions “work out” can be a real headache, which the use of zero-padding and some design guidelines will significantly alleviate.
+\[ (W−F+2P)/S+1 \]
 </div>
+
+For example for a 7x7 input and a 3x3 filter with stride 1 and pad 0 we would get a 5x5 output. With stride 2 we would get a 3x3 output.
+
+*Use of zero-padding.*
+Let's say in the above example, the image size is 32x32 if we pad the image with 2 pixels at the end that would make it, 36x36. Now if the apply the same filter (5x5) the output would be:
+
+<div>
+\[ (W - F + 2P)/S + 1 = 36 - 5 + 1 = 32 \]
+</div>
+
+It preserved the input shape, when the stride is **S = 1** ensures that the input volume and output volume will have the same size spatially. It is very common to use zero-padding in this way.
+
+*Constraints on strides.*
+Note again that the spatial arrangement hyperparameters have mutual constraints. For example, when the input has size **W = 10**, no zero-padding is used **P = 0**, and the filter size is **F = 3**, then it would be impossible to use stride **S = 2**, since
+
+<div>
+\[ (W - F + 2P)/S + 1 = 36 - 5 + 1 = 32 \]
+</div>
+
+i.e. not an integer, indicating that the neurons don’t "fit" neatly and symmetrically across the input. Therefore, this setting of the hyperparameters is considered to be invalid, and a ConvNet library could throw an exception or zero-pad the rest to make it fit, or crop the input to make it fit, or something. As we will see in the ConvNet architectures section, sizing the ConvNets appropriately so that all the dimensions "work out" can be a real headache, which the use of zero-padding and some design guidelines will significantly alleviate.
 
 *Real world example*
 `TODO`
