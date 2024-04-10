@@ -9,7 +9,15 @@ This blog post is clearly set of personal notes for the notes by Andrej Karpathy
 
 
 <!-- TOC -->
-<!-- INSERT -->
+# Table of contents
+
+- [Simple expressions and interpretation of the gradient](#simple-expressions-and-interpretation-of-the-gradient)
+- [Compound Expressions with Chain Rule](#compound-expressions-with-chain-rule)
+- [Intutive understanding of backpropogation](#intutive-understanding-of-backpropogation)
+- [Backprop in practice: Staged computation](#backprop-in-practice-staged-computation)
+- [Gradients for vectorized operations](#gradients-for-vectorized-operations)
+- [Gradient checking](#gradient-checking)
+- [Sources](#sources)
 
 ### Simple expressions and interpretation of the gradient
 

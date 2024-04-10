@@ -176,7 +176,8 @@ class BatchNorm1d:
       elif x.ndim == 3:
         dim = (0,1)
       xmean = x.mean(dim, keepdim=True)
-      xvar = x.var(dim, unbiased=True, keepdim=True)
+      xvar = x.var(dim, unbiased=True, keepdim=True)  #Notice: unbiased=True
+      # In statistics, Bessel's correction is the use of n − 1 instead of n in the formula for the sample variance and sample standard deviation
     else:
       xmean = self.running_mean
       xvar = self.running_var
