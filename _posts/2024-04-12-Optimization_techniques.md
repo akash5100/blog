@@ -17,6 +17,7 @@ Once the gradient is computed, it is then used to update the parameters. There a
   - [RMSProp (Gef. Hinton)](#rmsprop-gef-hinton)
   - [Adam](#adam)
   - [AdamW](#adamw)
+  - [AdamScheduleFree](#adamschedulefree)
 - [Second order methods](#second-order-methods)
 - [Sources](#sources)
 
@@ -184,7 +185,7 @@ x += -learning_rate * dx / sqrt(cache + 1e-7)
 
 # Adam
 beta1 = 0.9 # decay hyparam for momentum
-beta1 = 0.9 # decay hyparam for momentum
+beta1 = 0.995 # decay hyparam for momentum
 
 v = beta1 * v + (1-beta1) * dx
 cache = cache * beta2 + (1-beta2) * (dx**2)
@@ -192,7 +193,7 @@ x += -learning_rate * v / sqrt(cache + 1e-7)
 
 # commonly written as:
 beta1 = 0.9
-beta1 = 0.9
+beta1 = 0.995
 
 m = beta1 * m + (1-beta1) * dx
 v = beta2 * v + (1-beta2) * (dx**2)
@@ -215,6 +216,34 @@ m = beta1 * m + (1-beta1) * dx
 v = beta2 * v + (1-beta2) * (dx**2)
 x += -learning_rate * (m / (sqrt(v) + 1e-7) + weight_decay * x)
 ```
+
+### AdamScheduleFree
+
+By the time I was writing this blog, AdamScheduleFree was hot topic of [research in meta](https://github.com/facebookresearch/schedule_free/blob/main/schedulefree/adamw_schedulefree.py)
+
+```py
+for each parameter group:
+    retrieve beta1, beta2, learning rate (lr), weight decay, and epsilon (eps)
+
+    for each parameter p in the group:
+        retrieve or initialize m and v in state dictionary
+
+        # Update m and v
+        m = beta1 * m + (1 - beta1) * gradient
+        v = beta2 * v + (1 - beta2) * (gradient ** 2)
+
+        # Compute update
+        update = -lr * m / (sqrt(v) + eps) + weight_decay * parameter
+        
+        # Update parameter
+        parameter += update
+        
+        # Save updated m and v back to state
+        save m and v in state dictionary
+```
+
+the state dictionary is used to store the momentum (m) and the exponentially weighted moving average of squared gradients (v) for each parameter. After each update step, these values are updated and stored back into the state dictionary for later use in subsequent optimization steps. The state dictionary is typically managed by the optimizer and is associated with each parameter being optimized.
+
 
 ## Second order methods
 
