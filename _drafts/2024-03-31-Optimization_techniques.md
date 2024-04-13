@@ -23,8 +23,9 @@ for v, p in zip(vs, parameters)
   v.data = mu * v + lr * dx
 x -= v
 ```
+
 <div>
-When we update the velocity \( V \) using the equation \( V = \text{momentum} \times V + \text{lr} \times \text{grad} \), we are essentially accumulating the gradients over time with momentum. Here's a breakdown:
+When we update the velocity `v` using the equation  \( V = \text{momentum} \times V + \text{lr} \times \text{grad} \), we are essentially accumulating the gradients over time with momentum. Here's a breakdown:
 </div>
 
 <div>
