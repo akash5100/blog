@@ -1,5 +1,5 @@
 ---
-title: Understanding loss.backward()
+title: Understanding loss.backward
 tags: deeplearning
 ---
 
