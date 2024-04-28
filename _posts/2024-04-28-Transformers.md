@@ -184,9 +184,9 @@ FF(x) = [W1*x + B1] -> [relu] -> [h -> W2*h + B2]
 #### Encoder-Decoder
 Used for sequence to sequence task like translation, summarization. Encoder process the input sequence, decoder with masked-self-attention, cross-attention over encoder output and feed forward sub layers. Generates output sequence autogressively. 
 
-Here is the intution, the encoder creates feature rich representation of the input sequence, the decoder then uses the memory (i.e, key-query) of the encoder to generate output autoregressively. But the decoder also has the feature rich representation of inputs (i.e, values).
+Here is the intution, the encoder creates feature rich representation of the input sequence, the decoder then uses the memory (i.e, key-value) of the encoder to generate output autoregressively. But the decoder also has the feature rich representation of inputs (i.e, query).
 
-> The using of encoder's attention in decoder is called **cross-attention**. (encoder: key-query --> decoder: value)
+> The using of encoder's attention in decoder is called **cross-attention**. (encoder: key-value --> decoder: query)
 
 #### Encoder only
 Used for task like text classification, feature extraction, pretrained representations, document embeddings, transfer learnings.
