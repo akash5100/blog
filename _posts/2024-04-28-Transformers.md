@@ -3,7 +3,7 @@ title: Transformers
 tags: deeplearning
 ---
 
-Back in 2017, the deep learning folks were trying to achieve state-of-the-art performance in sequence to sequence modeling. They used RNN's like LSTM and GRU. The best performing model connect the encoder and decoder through an attention mechanism. Where the encoder is used to encode some sequence into rich embeddings and decoder decodes that embedding to different sequence. Example, language translation.
+Back in 2017, the deep learning folks were trying to achieve state-of-the-art performance in sequence to sequence modeling. They used RNN's like LSTM and GRU. The best performing model connects the encoder and decoder through an attention mechanism. Where the encoder is used to encode some sequence into rich embeddings and decoder decodes that embedding to different sequence. Example, language translation.
 
 # Table of contents
 
@@ -11,10 +11,10 @@ Back in 2017, the deep learning folks were trying to achieve state-of-the-art pe
 - [Transformer](#transformer)
 - [Model Architecture](#model-architecture)
 - [Attention](#attention)
-- [Types of attention function](#types-of-attention-function)
-- [Why scaling](#why-scaling)
-- [Multihead attention](#multihead-attention)
-- [Auto-regression mask for self-attention Head (Masked-attention)](#auto-regression-mask-for-self-attention-head-masked-attention)
+  - [Types of attention function](#types-of-attention-function)
+  - [Why scaling](#why-scaling)
+  - [Multihead attention](#multihead-attention)
+  - [Auto-regression mask for self-attention Head (Masked-attention)](#auto-regression-mask-for-self-attention-head-masked-attention)
 - [Feed Forward (Linear transformation)](#feed-forward-linear-transformation)
 - [Input Embeddings (Vocab and Positional)](#input-embeddings-vocab-and-positional)
 - [Regularizations used in the paper](#regularizations-used-in-the-paper)
