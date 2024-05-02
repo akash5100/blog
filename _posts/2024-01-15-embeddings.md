@@ -3,7 +3,7 @@ title: Embeddings in Recommendation Systems
 tags: deeplearning
 ---
 
-# Table of contents
+### Table of contents
 
 - [Collaborative Filtering](#collaborative-filtering)
 - [A Tabular Dataset -> Movie Recommendation System?](#a-tabular-dataset---movie-recommendation-system)
@@ -20,13 +20,13 @@ I will write a follow up blog about Regression and Random Forest, today complete
 -------
 <br/>
 
-### Collaborative Filtering
+## Collaborative Filtering
 
 A common problem to solve is having number of users and number of products, and you want to recommend which product the user will like or you have a new product in your database and you would like to recommend that product to you current users, but you cant recommend that to every user because someone might like it and some may hate it, you only want the first one to happen. A general solution to this problem called collaborative filtering, works like: look up what kind (genre) a user likes and find other user who have used/liked the same product and recommend the other product that those user have used/like.
 
 For example, Netflix when we create an account asks, what kind of movie/genre you like.
 
-### A Tabular Dataset -> Movie Recommendation System?
+## A Tabular Dataset -> Movie Recommendation System?
 
 MovieLens[^1] dataset consists of:
 * 100,000 ratings (1-5) from 943 users on 1682 movies.
@@ -67,7 +67,7 @@ If we knew for each user to what degree they liked each category that a movie mi
 
 The result of the multiplication and addition is called *Score*. If we have these numbers for each users and items (movies) we can __dot product__ them and get the scores.
 
-### Embeddings?
+## Embeddings?
 
 From where do we get these numbers for each user and item, the answer is we don't, we learn them. These numbers are called *latent factors*; we refer to them as latent because, for us (humans), we don't know their meaning.
 
@@ -77,7 +77,7 @@ Here is how the overall image will look like:
 
 We created 2 matrix, depending on how many feature each user and movie will have (here 4, act, com, scifi, rom. So `n_user x 4` and `4 x n_movies`), initialized both with random number because we are going to learn it anyway using SGD.
 
-### Speed up the calculation of scores
+## Speed up the calculation of scores
 
 We have 2 latent factor matrix, for user and item. To make predictin, we need to take the dot product, for specific user and item's latent vectors. But deep learning models don't know how to index into a matrix to lookup the vector for a specific user/movie. They only understand matrix multiplications. We can represent _looking up the index_ as multiplying by one-hot-encoded vector of that row.
 
@@ -102,7 +102,7 @@ tensor([[0.0, 0.0, 0.0],
 
 But this is inefficient, we can think how big will be the one-hot encoded matrices for users and, so libraries like PyTorch has *Embedding* Layers that do this lookup and retrieve the vector at that index, it creates the latent factor matrices in such a way that later we dont need to multiply one-hot encoded matrix to get latent factor for specific user/item. A simple array indexing gives us the row we want.
 
-### Why sharp curves of learning weights = overfitting
+## Why sharp curves of learning weights = overfitting
 
 We have non-linearity in labels, our universal function approxiator (neural nets) want to learn that non-linearity, So, what we learn? weights and bias. If the weights are increased more and more over time, what will happen? 
 
@@ -110,7 +110,7 @@ We have non-linearity in labels, our universal function approxiator (neural nets
 
 It will be more and more *sharp*, that's nothing but overfitting.
 
-### Weight Decay or L2 Regularization
+## Weight Decay or L2 Regularization
 
 1. Large weights in a neural network indicate that certain activations are becoming more active compared to others over time. 
 2. We calculate loss to determine the disparity between our predictions and the target, and then use it to compute gradients. `preds - targs`
@@ -138,7 +138,7 @@ We can add a constant `wd` Weight Decay, so big that it will make it twice as bi
 
 `params.grad += 2 * params * wd` <- Weight decay constant
 
-### Movie Recommendation System with Embeddings (MovieLens Dataset)
+## Movie Recommendation System with Embeddings (MovieLens Dataset)
 
 Follow kaggle notebook for more, but I will just create a Embedding layers and our Recommendation system's model for scratch here:
 
@@ -173,7 +173,7 @@ class DotProductModel(nn.Module):
 ```
 
 
-### Direction and Distance of embeddings
+## Direction and Distance of embeddings
 
 The embedding layers are hard to understand directly, but _Principal Component Analysis (PCA)_ is used to get the underlying directions in matrix.
 
@@ -188,7 +188,7 @@ Taking the average just works, taking the average for the sci-fi may high compar
 
 Or, like what Netflix, amazon prime do for new users? (create form, like what genre you like, what actors you like etc)
 
-### Otakus are kinda poison to our embeddings
+## Otakus are kinda poison to our embeddings
 
 Imagine, a small number of users ended up setting up recommendation for the complete database. For instance, people who watch anime, tends to only review anime's and this result in the overall recommendation's direction to incline toward anime's. This result in getting some anime's in _Top ten movies_. 
 

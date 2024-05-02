@@ -3,7 +3,7 @@ title: Batch Normalization
 tags: deeplearning
 ---
 
-# Table of contents
+### Table of contents
 
 - [Strange output of coupling](#strange-output-of-coupling)
 - [Source](#source)
@@ -121,7 +121,7 @@ We could think that this is a bug, but it's actually good for training and neura
 
 It works so well. which made it hard to move on to different techniques because no one likes the property of coupling batches but it is the first Normalization layer technique. It has regularization effect, stable training. It worked quite well. Because of The regularization effect.
 
-### Strange output of coupling
+## Strange output of coupling
 
 Let's say we trained a model and we want to deploy how can we do that if in the forward pass expects a mean and standard deviation of batch? That means it expects a batch as an input and not a data point. So the authors of the research paper proposed this solution:
 
@@ -258,7 +258,7 @@ epoch    1900/20000   |   loss: 2.5848   |   perx: 13.2610
 epoch    2000/20000   |   loss: 2.1021   |   perx: 8.1833
 ```
 
-### Source
+## Source
 
 - Inspired from this [lecture](https://www.youtube.com/watch?v=P6sfmUTpUmc&list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ&index=4&t=5213s).
 - Complete implementation: [github link](https://github.com/akash5100/ai-notebooks/blob/main/bigram/part3_batchnorm.ipynb)

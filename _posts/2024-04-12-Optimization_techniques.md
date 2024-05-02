@@ -6,7 +6,7 @@ tags: deeplearning
 Once the gradient is computed, it is then used to update the parameters. There are several approaches to perform the update.
 
 <!-- TOC -->
-# Table of contents
+### Table of contents
 
 - [First order(SGD), momentum, nesterov momentum](#first-ordersgd-momentum-nesterov-momentum)
   - [Stochastic gradient descent](#stochastic-gradient-descent)

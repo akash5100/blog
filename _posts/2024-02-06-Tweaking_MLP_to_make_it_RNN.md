@@ -3,7 +3,7 @@ title: Stateful Recurrent Neural Network
 tags: deeplearning
 ---
 
-# Table of contents
+### Table of contents
 
 - [We can remove the hardcoded part by replacing it with a loop](#we-can-remove-the-hardcoded-part-by-replacing-it-with-a-loop)
   - [Improving our RNN](#improving-our-rnn)
@@ -58,7 +58,7 @@ class LMModel1(nn.Module):
 `ih (input to hidden) -> hh (hidden to hidden) -> ho (hidden to output)`
 
 
-### We can remove the hardcoded part by replacing it with a loop
+## We can remove the hardcoded part by replacing it with a loop
 
 ```py
 class LMModel2(nn.Module):
@@ -82,7 +82,7 @@ class LMModel2(nn.Module):
 
 > Jargon: Recurrent NN (Looping Neural Net) <br> A neural network that is defined using a loop like this is called a recurrent Neural Network. <br> RNN is not a complicated new architecture but simply a refactoring of a multilayer neural network using a for loop.
 
-#### Improving our RNN
+### Improving our RNN
 
 Looking at the code, one thing seems problematic is that we are initializing our hidden state to zero for every new input sequence. Why is that problematic? 
 
@@ -90,7 +90,7 @@ Resetting the activations to zero for every sequence means starting with a "blan
 
 Another thing that can be improved in our RNN is, why only predict the 4th word after 3 words? why not predict the 2nd and 3rd words?
 
-### First thing first, let's solve the resetting of hidden state
+## First thing first, let's solve the resetting of hidden state
 
 We are basically throwing away the information we have about the sentences we have seen so far, this could be easily fixed by saving the state as a class variable.
 
@@ -247,7 +247,7 @@ The targets is of shape `bs, sl` = `64, 16`. We flatten them by `(-1)`. The `pre
 
 We only have one linear layer between the hidden state and the output activations in our basic RNN, so maybe we'll get better results with more layers.
 
-### Creating Multilayer RNN
+## Creating Multilayer RNN
 
 In, a multilayer RNN, we pass the activations from one RNN into a second RNN.
 
@@ -296,7 +296,7 @@ learn.fit_one_cycle(15, 3e-3)
 
 It disappointing than our single layer RNN, why so? The reason is that we have a deeper model, leading to exploding or vanishing activations.
 
-### Exploding and disappearing Activations
+## Exploding and disappearing Activations
 
 In Practice, creating accurate RNN model is difficult. We will get better results if we call `detach` less often and have more layers-- this will give our RNN a longer time to learn from and richer features to create. This means our model is more deep and training this kind of deep model is a key challenge. 
 

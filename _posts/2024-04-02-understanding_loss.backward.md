@@ -8,8 +8,7 @@ Relying on any library is not good; therefore, this time, removing this black bo
 This blog post is clearly set of personal notes for the notes by Andrej Karpathy's cs231n lectures.[^1][^2][^3]
 
 
-<!-- TOC -->
-# Table of contents
+### Table of contents
 
 - [Simple expressions and interpretation of the gradient](#simple-expressions-and-interpretation-of-the-gradient)
 - [Compound Expressions with Chain Rule](#compound-expressions-with-chain-rule)
@@ -19,7 +18,7 @@ This blog post is clearly set of personal notes for the notes by Andrej Karpathy
 - [Gradient checking](#gradient-checking)
 - [Sources](#sources)
 
-### Simple expressions and interpretation of the gradient
+## Simple expressions and interpretation of the gradient
 
 
 <div>
@@ -53,7 +52,7 @@ Here, the (sub)gradient is 1 on the input that was larger and 0 on the other inp
 <br>
 
 
-### Compound Expressions with Chain Rule
+## Compound Expressions with Chain Rule
 
 <div>
 Let's now consider more complicated expressions that involve multiple composed functions, such as \( f(x,y,z) = (x+y)z \). While this expression is simple enough to differentiate directly, we'll take a particular approach that will be helpful for understanding the intuition behind backpropagation. Specifically, note that this expression can be broken down into two expressions: \( q = x+y \) and \( f = qz \). Moreover, we know how to compute the derivatives of both expressions separately, as seen in the previous section. \( f \) is just the multiplication of \( q \) and \( z \), so \( \frac{\partial f}{\partial q} = z \), \( \frac{\partial f}{\partial z} = q \), and \( q \) is the addition of \( x \) and \( y \) so \( \frac{\partial q}{\partial x} = 1 \), \( \frac{\partial q}{\partial y} = 1 \).
@@ -93,7 +92,7 @@ We are left with the gradient in the variables \([ \frac{\partial f}{\partial x}
 </figure>
 
 
-### Intutive understanding of backpropogation
+## Intutive understanding of backpropogation
 
 Backpropogation is a local process. Every gate in a circuit diagram gets some inputs and can right away compute two things: 1. its output value and 2. the local gradient of its output with respect to its inputs. The gates can do this completely independentlty without being aware of any of the details full circuit. Once the forward pass is over, during backprop the gate will eventually learn about the gradients of its output value on the final output of the entire circuit. And with the chain rule you take the gradient and multiply it by the gradient of its outputwith respect to its inputs.
 
@@ -158,7 +157,7 @@ dw = [x[0] * ddot, x[1] * ddot, 1.0 * ddot] # Backprop into w
 # We're done! We have the gradients on the inputs to the circuit
 ```
 
-### Backprop in practice: Staged computation
+## Backprop in practice: Staged computation
 
 Suppose that we have a function of the form:
 <div>
@@ -252,7 +251,7 @@ Notice that if one of the inputs to the multiply gate is very small and the othe
 </p>
 
 
-### Gradients for vectorized operations
+## Gradients for vectorized operations
 
 Gradients for vectorized operations extend concepts to matrix and vector operations, requiring attention to dimensions and transpose operations.
 
@@ -273,11 +272,11 @@ Tip: Utilize dimension analysis to derive gradient expressions. The resulting gr
 
 Start with small, explicit examples to derive gradients manually, then generalize to efficient, vectorized forms. This approach aids understanding and application of vectorized expressions.
 
-### Gradient checking
+## Gradient checking
 
 TLDwrote; [cs231n notes on gradient checking](https://cs231n.github.io/neural-networks-3/#gradcheck)
 
-### Sources
+## Sources
 
 
 [^1]: Inspired by [CS231n notes](https://cs231n.github.io/optimization-2/)

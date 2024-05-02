@@ -5,7 +5,7 @@ tags: deeplearning
 
 Back in 2017, the deep learning folks were trying to achieve state-of-the-art performance in sequence to sequence modeling. They used RNN's like LSTM and GRU. The best performing model connects the encoder and decoder through an attention mechanism. Where the encoder is used to encode some sequence into rich embeddings and decoder decodes that embedding to different sequence. Example, language translation.
 
-# Table of contents
+### Table of contents
 
 - [Sequence to sequence modeling and limitations of RNNs](#sequence-to-sequence-modeling-and-limitations-of-rnns)
 - [Transformer](#transformer)
@@ -24,7 +24,7 @@ Back in 2017, the deep learning folks were trying to achieve state-of-the-art pe
   - [Decoder only](#decoder-only)
 - [Sources](#sources)
 
-# Sequence to sequence modeling and limitations of RNNs
+## Sequence to sequence modeling and limitations of RNNs
 RNN had the vanishing gradient problem, models like LSTM and GRU emerged to tackle this problem but realized that altho the text may look better than rubbish, its still rubbish. It may look like English, but jumbled words and the sentence has no meaning.
 
 - https://arxiv.org/pdf/1409.0473 (TLDR, first paper on using attention on RNN)
@@ -37,7 +37,7 @@ RNN generates a sequence of hidden states `ht`, as a function of the previous hi
 
 > TLDR, one limitation is their computational complexity, especially with longer sequences, which can lead to slower training and inference times. They might struggle with capturing long-range dependencies in sequences.
 
-# Transformer 
+## Transformer 
 Transformer was the first model architecture which avoided RNN and instead relying entirly on an attention mechanism to draw global dependencies between input and output. Transformer allows for significantly more parallelization and thus requires less time to train.
 
 <figure>
@@ -46,7 +46,7 @@ Transformer was the first model architecture which avoided RNN and instead relyi
   </figcaption>
 </figure>
 
-# Model Architecture
+## Model Architecture
 The paper was for natural language translation and most competitive neural sequence transduction model have an encoder-decoder structure, so the transformer proposed is also an encoder-decoder transformer. Where the encoder took sequence `x (1->n)` and generates continuous representation `z (1->n)`. Given `z`, the decoder then generates an output sequence one element at a time. At each step the model is **auto-regressive**. Consuming the previously generated symbols as additinal input when generating the next.
 
 <figure>
@@ -55,7 +55,7 @@ The paper was for natural language translation and most competitive neural seque
   </figcaption>
 </figure>
 
-# Attention
+## Attention
 Understanding the attention is the core of transformer. Attention can be defined as mapping a **query** and a set of **key-value** pairs to an output, where the query, key, values and output are all vectors.
 
 <figure>
@@ -71,7 +71,7 @@ Each vector is derived from the input `X`. In relatable words, to interpret this
 - you get the attention score, (typically scaled and then normalized using softmax) **scale? why?** because big numbers == more computation.
 - this normalized attention distribution will then guide the model (talking about optimization process aka backprop) on how much weight to assign to each value when computing weighted sum, which represents the attended information or the answer to the query.
 
-# Types of attention function
+## Types of attention function
 The two most commonly used attention functions are additive attention, and dot-product attention. Additive attention computes the compatibility function using a feed forward network with a single hidden layer. Both achieves the same but the dot-product attention is much faster and more space-efficient in practice, since it can be implemented using highly optimized matrix multiplication code.
 
 <div>
@@ -82,7 +82,7 @@ The two most commonly used attention functions are additive attention, and dot-p
 
 After the matrix multiplication, we scale the output by `1/(Dk)**0.5`. Where, `Dk` is the dimension of keys and queries. After that we apply softmax to obtain weights on the values. 
 
-# Why scaling
+### Why scaling
 While for the small value of `Dk`, additive function outperforms the dot-product attention without scaling for larger value of `Dk`. This is because, when the value of `Dk` is small, softmax receives bigger input which tends the softmax to create the probability distribution more easily. But, as we scale the dimension of head, i.e `head_size` (`Dk`) the input to softmax gets smaller and its hard for softmax to distribute the probability. To counteract this effect, we scale the dot product by `1/(Dk)**0.5`.
 
 <figure>
@@ -93,7 +93,7 @@ While for the small value of `Dk`, additive function outperforms the dot-product
 
 Therefore, we use **scaled dot-product attention** rather than **additive attention** without scaling.
 
-# Multihead attention
+### Multihead attention
 Instead of performing a single attention function with `d` dimension-- d keys, queries and values, it is beneficial to linearly project the queries, keys and values `n` times with different. We then perform the attention function in parallel, yielding `n` times `head_size` output values. These are then concatenated and then have a *linear transformation*.
 
 <figure>
@@ -102,7 +102,7 @@ Instead of performing a single attention function with `d` dimension-- d keys, q
   </figcaption>
 </figure>
 
-# Auto-regression mask for self-attention Head (Masked-attention)
+### Auto-regression mask for self-attention Head (Masked-attention)
 
 Recall this attention mechanism, but what is the mask?
 
@@ -146,7 +146,7 @@ tensor(0.)
 tensor(1.)
 ```
 
-# Feed Forward (Linear transformation)
+## Feed Forward (Linear transformation)
 In addition to attention sub-layers, each of the layers in encoder and decoder contains a fully connected feed-forward network, which is applied to each position separately and identically. This consists of two linear transformations with a ReLU activation in between.
 
 ```py
@@ -160,7 +160,7 @@ FF(x) = [W1*x + B1] -> [relu] -> [h -> W2*h + B2]
 </figure>
 
 
-# Input Embeddings (Vocab and Positional)
+## Input Embeddings (Vocab and Positional)
 **Purpose.** Since the model has no conv or recurrent network, in order to make the use of the order of the sequence, we must inject some information about the relative or absolute position of the token in sequence. Therefore, in addition to the classic **vocab embedding** (embedding for each token) we also add embeddings for each position in the sequence. The positional embeddings have the same dimension as the embeddings, so that the two can be summed.
 
 **Choice.** It is possible to start with a ***Fixed*** positional embedding or ***learned*** positional encoding, it is mentioned in the research paper that they found the two version produced nearly identical results. Hence, they choose the sine version (*fixed*) because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training. Fixed positional encodings are pre-defined functions that map each position in the sequence to a fixed vector representation. Useful [resource](https://discuss.huggingface.co/t/why-positional-embeddings-are-implemented-as-just-simple-embeddings/585).
@@ -175,29 +175,29 @@ FF(x) = [W1*x + B1] -> [relu] -> [h -> W2*h + B2]
 
 **Comparison.** both versions produced nearly identical results, suggesting that the choice of positional encoding method did not significantly impact model performance. Ultimately, the authors opted for the sinusoidal positional encodings due to their potential for extrapolating to longer sequence lengths beyond those seen in training data.
 
-# Regularizations used in the paper
+## Regularizations used in the paper
 - **Residual Dropout**: dropout to the output of each sublayer before it is added to the sublayer input and normalized. Dropout is also applied to the sum of embeddings and positional embeddings in both encoder and decoder stack. (*p=0.1*)
 - **Label Smoothing**: instead of one hot encoded labels, smoothing the layers. high-level example: `0,1,0 -> 0.1, 0.8, 0.1`. 
  
-# Transformer Architectures
+## Transformer Architectures
 
-#### Encoder-Decoder
+### Encoder-Decoder
 Used for sequence to sequence task like translation, summarization. Encoder process the input sequence, decoder with masked-self-attention, cross-attention over encoder output and feed forward sub layers. Generates output sequence autogressively. 
 
 Here is the intution, the encoder creates feature rich representation of the input sequence, the decoder then uses the memory (i.e, key-value) of the encoder to generate output autoregressively. But the decoder also has the feature rich representation of inputs (i.e, query).
 
 > The using of encoder's attention in decoder is called **cross-attention**. (encoder: key-value --> decoder: query)
 
-#### Encoder only
+### Encoder only
 Used for task like text classification, feature extraction, pretrained representations, document embeddings, transfer learnings.
 
 > basically creating feature rich embeddings for given sequence. The embedding then can be used to different tasks mentioned above.
 
-#### Decoder only
+### Decoder only
 Used for language modeling, text generation tasks. Decoder components are masked self-attention and feed-forward layers, no encoder, no cross attention. Autoregressive in nature (due to attn-mask).
 
 
-# Sources
+## Sources
 - [Attention is All You Need, 2017](https://arxiv.org/abs/1706.03762)
 - [useful for visualization of sin positional encoding](https://github.com/wzlxjtu/PositionalEncoding2D/blob/master/visualization.ipynb)
 - tensorflow [original transformer](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py#L479)

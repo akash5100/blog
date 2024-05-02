@@ -18,8 +18,14 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
+# head--> jekyll.environment == 'production' and 
+
 title: AmreV
-email: akashzsh08@gmail.com
+
+author:
+  name: AmreV
+  email: akashzsh08@gmail.com
+
 description: >- # this means to ignore newlines until "baseurl:"
   Documenting my deeplearning journey and a home for my poorly researched ideas that I find myself repeating often anyway
 baseurl: "/blog" # the subpath of your site, e.g. /blog
@@ -28,14 +34,21 @@ twitter_username: akzsh5100
 github_username:  akash5100
 
 # Build settings
-theme: minima
+remote_theme: jekyll/minima
 
-# minima:
+minima:
 #   skin: dark
+  social_links:
+    - { platform: github,         user_url: "https://github.com/akash5100" }
+    - { platform: x,              user_url: "https://x.com/akzsh5100" }
+
+google_analytics: G-Q8H6CQ8396
 
 plugins:
+  - jekyll-remote-theme
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-seo-tag
 
 # Exclude from processing.
 # The following items will not be processed, by default.
@@ -60,3 +73,5 @@ exclude:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+environment: production
