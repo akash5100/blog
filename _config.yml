@@ -11,7 +11,6 @@ url: "https://akash5100.github.io" # the base hostname & protocol for your site,
 
 twitter_username: akzsh5100
 github_username:  akash5100
-google_analytics: G-Q8H6CQ8396
 
 # Build settings
 remote_theme: jekyll/minima
