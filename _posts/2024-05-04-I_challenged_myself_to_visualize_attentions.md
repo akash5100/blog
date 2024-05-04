@@ -23,12 +23,6 @@ LLAMA3_SPLIT_PATTERN = r"""(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+
 
 The main game changer of GPT-2 is the quality of dataset it was trained on, they created a new web scrape which emphasizes document quality. They scraped only the web pages which has been curated/filtered by humans. Manually filtering a full web scrape would be exceptionally expensive so as a starting point, scraped all outbound links from **Reddit**, a social media platform, which received at least *3 karma*. This can be thought of as a heuristic indicator for whether other users found the link interesting, educational, or just funny.
 
-<figure>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/qa.png" alt='attention mechanism' height=500px>
-  <figcaption>Fine, here it is.
-  </figcaption>
-</figure>
-
 > Goal openai tried to achieve: Current systems are better characterized as narrow experts rather than competent generalists. We would like to move towards more general systems which can perform many tasks – eventually without the need to manually create and label a training dataset for each one.
 
 
@@ -44,6 +38,12 @@ For Translation, the prompt is `english sentence = french sentence
 < some english sentence > = `, the model the generates translated sentence, altho low accuracy because training data have only 10MB in 40GB.
 
 Question Answering is a bit interesting and funny, figure out yourself. [Go here](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
+
+<figure>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/qa.png" alt='attention mechanism' height=500px>
+  <figcaption>Fine, here it is.
+  </figcaption>
+</figure>
 
 ----------------
 
