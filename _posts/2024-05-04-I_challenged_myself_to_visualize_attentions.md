@@ -105,4 +105,4 @@ for token in gen:
 
 Reasoning in human beings refers to the cognitive process of systematically making sense of information, drawing conclusions, and solving problems through logical thinking, analysis, and inference.
 
-What is the possibility of GPT-5/next model by openai (probably Q*) to be highly trained to answer like this. Moreover, breaking them into chunks of finetuning, example finetuning to be predict best possible Analyzing, best possible Logic from the available information. Just a thought.
+What is possibility of GPT-5 or a future AI models being highly finetuned to answer with human-like reasoning? Furthermore, breaking down the training process into fine-tuning for tasks such as predicting the best possible analysis, same for logic from available information is a plausible direction for advancement. Just a thought.
