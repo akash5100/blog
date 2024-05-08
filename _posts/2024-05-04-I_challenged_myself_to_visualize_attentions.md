@@ -81,15 +81,33 @@ for token in gen:
 - Training model like GPT-2 (1.4B parameters) on a big and quality dataset, was enough to generalize diversity of Natural langauge sementics that it performed **zero-shot** on variety of task.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/one.png" alt='attention mechanism' height=900px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/one.png" alt='attention mechanism' height=600px>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/two.png" alt='attention mechanism' height=900px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/two.png" alt='attention mechanism' height=600px>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/three.png" alt='attention mechanism' height=900px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/three.png" alt='attention mechanism' height=600px>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/four.png" alt='attention mechanism' height=900px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/four.png" alt='attention mechanism' height=600px>
   <figcaption>some headmaps bruh, generating 4 different tokens each.
   </figcaption>
+</figure>
+
+<hr>
+
+**Edit: okay, I trained a small 2 layer model, with good big context length in Amazon SageMaker, here are the results.**
+
+<figure>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/4.png" alt='attention mechanism' height=250px>
+  <figcaption>Prompt: "Swift at the 1989 World Tour, the highest-grossing tour of 2015. In March 2014, Swift began living in New York City", prediction: " as"</figcaption>
+  <hr>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/3.png" alt='attention mechanism' height=250px>
+  <figcaption>Prompt: "New", preds: " York"</figcaption>
+  <hr>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/2.png" alt='attention mechanism' height=250px>
+  <figcaption>Prompt: "Are you", preds: " Harris"</figcaption>
+  <hr>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/1.png" alt='attention mechanism' height=250px>
+  <figcaption>Prompt: "She is one of the most", preds: "-streamed" (it created most-streamed)</figcaption>
 </figure>
 
 
