@@ -118,6 +118,8 @@ for token in gen:
 - [Visualization notebook](https://github.com/akash5100/ai-notebooks/blob/main/transformer/visualization.ipynb)
 - [Generation and Sampling notebook](https://github.com/akash5100/ai-notebooks/blob/main/attention_visualization.py)
 - [found a good read tonight, 4.4.24](https://ig.ft.com/generative-ai/)
+edit:
+- (Edit, 10th May) I found [this blog](http://nlp.seas.harvard.edu/2018/04/03/attention.html), when I was reading the BERT paper which tried the similar kind of heatmaps across different layers of the transformer. Do I think like a scientist? hmm.
 
 ### Outro
 
