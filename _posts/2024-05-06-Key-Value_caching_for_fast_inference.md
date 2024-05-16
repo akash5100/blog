@@ -23,14 +23,14 @@ If you see, we are again and again calculating the Key and Values for last `t-1`
 
 KV caching addresses this issue by storing the computed Key (K) and Value (V) matrices for each token generation step. This allows the model to reuse these cached matrices instead of recomputing them from scratch at each step, reducing the computational cost.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Key-Value_caching_for_fast_inference/1.gif" alt='KV-caching' style="max-width: 100%; height: auto;">
   <figcaption>Source of the image at the end</figcaption>
 </figure>
 
 With KV caching, the sequence length still increases by 1 at each step, but the model can efficiently reuse previously computed K and V matrices, mitigating the quadratic increase in computation. This makes long-range generation more efficient and scalable.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Key-Value_caching_for_fast_inference/2.gif" alt='KV-caching' style="max-width: 100%; height: auto;">
   <figcaption>Source of the image at the end</figcaption>
 </figure>

@@ -39,7 +39,7 @@ For Translation, the prompt is `english sentence = french sentence
 
 Question Answering is a bit interesting and funny, figure out yourself. [Go here](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/qa.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Fine, here it is.
   </figcaption>
@@ -80,7 +80,7 @@ for token in gen:
 - Limited with CPU, so I didn't increase the embedding size, another reason was I also wanted to visualize them.
 - Training model like GPT-2 (1.4B parameters) on a big and quality dataset, was enough to generalize diversity of Natural langauge sementics that it performed **zero-shot** on variety of task.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/one.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <hr>
   <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/two.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
@@ -96,7 +96,7 @@ for token in gen:
 
 **Edit: okay, I trained a small 2 layer model, with good big context length in Amazon SageMaker, here are the results.**
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/4.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Prompt: "Swift at the 1989 World Tour, the highest-grossing tour of 2015. In March 2014, Swift began living in New York City", prediction: " as"</figcaption>
   <hr>
@@ -119,7 +119,8 @@ for token in gen:
 - [Generation and Sampling notebook](https://github.com/akash5100/ai-notebooks/blob/main/attention_visualization.py)
 - [found a good read tonight, 4.4.24](https://ig.ft.com/generative-ai/)
 edit:
-- (Edit, 10th May) I found [this blog](http://nlp.seas.harvard.edu/2018/04/03/attention.html), when I was reading the BERT paper which tried the similar kind of heatmaps across different layers of the transformer. Do I think like a scientist? hmm.
+- (Edit, **10th May**) I found [this blog](http://nlp.seas.harvard.edu/2018/04/03/attention.html), when I was reading the BERT paper which tried the similar kind of heatmaps across different layers of the transformer. Do I think like a scientist? hmm.
+- (Edit, **15th May**): In the **Sparse Transformer** paper by openai, they trained 128 layered deep network and found that attentions at different depth learns different patterns ([see Figure 2.](https://arxiv.org/pdf/1904.10509#page=3)), and if you notice, (maybe) we got all the 4 above.
 
 ### Outro
 

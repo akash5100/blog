@@ -40,7 +40,7 @@ RNN generates a sequence of hidden states `ht`, as a function of the previous hi
 ## Transformer 
 Transformer was the first model architecture which avoided RNN and instead relying entirly on an attention mechanism to draw global dependencies between input and output. Transformer allows for significantly more parallelization and thus requires less time to train.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/sa.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>shows how the next word is predicted based on the previous words, Image is stolen from here: https://arxiv.org/pdf/1601.06733, I might create a project to visualize this myself stay tuned :D
   </figcaption>
@@ -49,7 +49,7 @@ Transformer was the first model architecture which avoided RNN and instead relyi
 ## Model Architecture
 The paper was for natural language translation and most competitive neural sequence transduction model have an encoder-decoder structure, so the transformer proposed is also an encoder-decoder transformer. Where the encoder took sequence `x (1->n)` and generates continuous representation `z (1->n)`. Given `z`, the decoder then generates an output sequence one element at a time. At each step the model is **auto-regressive**. Consuming the previously generated symbols as additinal input when generating the next.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/t.png" alt='transformer arc' style="max-width: 100%; height: auto;">
   <figcaption>Transformer Architecture: taken from the all time fav paper, Attention is All You Need.
   </figcaption>
@@ -58,7 +58,7 @@ The paper was for natural language translation and most competitive neural seque
 ## Attention
 Understanding the attention is the core of transformer. Attention can be defined as mapping a **query** and a set of **key-value** pairs to an output, where the query, key, values and output are all vectors.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/dpattention.png" alt='transformer arc' style="max-width: 100%; height: auto;">
   <figcaption>Scaled Dot-product attention: again, taken from the all time fav paper, Attention is All You Need.
   </figcaption>
@@ -85,7 +85,7 @@ After the matrix multiplication, we scale the output by `1/(Dk)**0.5`. Where, `D
 ### Why scaling
 While for the small value of `Dk`, additive function outperforms the dot-product attention without scaling for larger value of `Dk`. This is because, when the value of `Dk` is small, softmax receives bigger input which tends the softmax to create the probability distribution more easily. But, as we scale the dimension of head, i.e `head_size` (`Dk`) the input to softmax gets smaller and its hard for softmax to distribute the probability. To counteract this effect, we scale the dot product by `1/(Dk)**0.5`.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/scale.png" alt='transformer arc' style="max-width: 100%; height: auto;">
   <figcaption>as we scale, i.e, the parameters gets bigger, we need to scale harder. This is the reason we choose dimension of Key-Query. The scaling prevents the dot products from becoming too large, which could lead to extremely small gradients in the softmax function, making training difficult
   </figcaption>
@@ -96,7 +96,7 @@ Therefore, we use **scaled dot-product attention** rather than **additive attent
 ### Multihead attention
 Instead of performing a single attention function with `d` dimension-- d keys, queries and values, it is beneficial to linearly project the queries, keys and values `n` times with different. We then perform the attention function in parallel, yielding `n` times `head_size` output values. These are then concatenated and then have a *linear transformation*.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/mha.png" alt='transformer arc' style="max-width: 100%; height: auto;">
   <figcaption>Multihead attention
   </figcaption>
@@ -106,7 +106,7 @@ Instead of performing a single attention function with `d` dimension-- d keys, q
 
 Recall this attention mechanism, but what is the mask?
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/dpattention.png" alt='transformer arc' style="max-width: 100%; height: auto;">
   <figcaption>The Mask is optional.
   </figcaption>
@@ -131,7 +131,7 @@ tensor([[ 0.8350,  1.4479, -2.2848, -1.5227],  # <- Sequence 1 acts
 ```
 Now if we have matrix multiplication, the 0's effectively cancels the future occuring numbers.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/tril.png" alt='tril matrix mul' style="max-width: 100%; height: auto;">
   <figcaption> The activations of tokens getting multiplied with 0's, doesnt take part in the prediction, thus achieving autoregressive property. 
   </figcaption>
@@ -153,7 +153,7 @@ In addition to attention sub-layers, each of the layers in encoder and decoder c
 FF(x) = [W1*x + B1] -> [relu] -> [h -> W2*h + B2]
 ```
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/ff.png" alt='attention feed forward' style="max-width: 100%; height: auto;">
   <figcaption> Linear transformation on attention as described in "Attention is All You Need".  
   </figcaption>
@@ -167,7 +167,7 @@ FF(x) = [W1*x + B1] -> [relu] -> [h -> W2*h + B2]
 
 > read TransformerXL paper.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Transformers/embs.png" alt='positional emb' style="max-width: 100%; height: auto;">
   <figcaption> Positional embedding added with token embeddings.  
   </figcaption>

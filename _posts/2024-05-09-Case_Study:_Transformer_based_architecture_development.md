@@ -52,8 +52,8 @@ zzz.
 **TL;DR:** In the next section, you'll learn that GPT-2 has a summarization problem - it struggles with long-term dependencies, leading to hallucinations like "color/log/hat/car" etc. While I couldn't find a specific paper addressing this issue, it's related to the limited attention scope within the context window. TransformerXL tackles this problem by increasing long-term dependencies without expanding the context window. Additionally, it introduces a new positional encoding technique called **Relative Positional Encoding**, which replaces the absolute positional encoding used in the original Transformer. This approach has been adopted in later models like OpenAI's "*[Fill In the Middle](https://arxiv.org/pdf/2207.14255)*" (2022).
 
 <hr>
-<figure>
-  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' style="max-width: 100%; height: auto;">
+<figure style="text-align: center;">
+  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
   <figcaption>Illustration of the vanilla transformer with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
 <hr>
@@ -67,7 +67,7 @@ And during inference, the vanilla model consumes a segment of the same length as
 TransformerXL used caching of Key and Value attention computation to speed up inference. I think originally introduced in "*Edouard Grave, et al. 2016 Improving neural language models with a continuous cache*".
 
 <hr>
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-model.png" alt='xl-model' style="max-width: 100%; height: auto;">
   <figcaption>Illustration of the Transformer-XL with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
@@ -103,7 +103,7 @@ TransformerXL used caching of Key and Value attention computation to speed up in
     To fix this. its a `todo`  
 
 <hr>
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-incoherence.png" alt='xl-incoherence' style="max-width: 100%; height: auto;">
   <figcaption>makes model confuse? ~from https://vimeo.com/384795188</figcaption>
 </figure>

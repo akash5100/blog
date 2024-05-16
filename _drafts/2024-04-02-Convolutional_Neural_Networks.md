@@ -17,7 +17,7 @@ So what changes? ConvNet architecture make the explicit assumption that the inpu
 
 <hr>
 <br>
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Convolutional_Neural_Networks/neural_net2.jpeg" alt='neural net' height=200px>
   <hr>
   <img src="{{site.baseurl}}/assets/Convolutional_Neural_Networks/cnn.jpeg" alt='cnn' height=200px>
@@ -44,7 +44,7 @@ This way ConvNets transform the original image layer by layer from the original 
 
 <hr>
 
-<figure style="padding: 12px;">
+<figure style="text-align: center;" style="padding: 12px;">
   <img src="{{site.baseurl}}/assets/Convolutional_Neural_Networks/convnet.jpeg" alt='convnet'>
   <figcaption>The activations of an example ConvNet architecture. The initial volume stores the raw image pixels (left) and the last volume stores the class scores (right). The middle shows visulizations of activations, since it is difficult to visualize 3D, here the representation is in 2D.</figcaption>
 </figure>
@@ -71,7 +71,7 @@ CONV Layer is the core building block of CNNs that does the most computational h
 
 <hr>
 
-<figure style="padding: 12px;">
+<figure style="text-align: center;" style="padding: 12px;">
   <img src="{{site.baseurl}}/assets/Convolutional_Neural_Networks/depth.png" alt='depth'>
   <figcaption>Notice, INPUT: 32x32x<b>3</b> -> FILTER: 6 x 5x5x<b>3</b> -> ACTIVATION MAP: 28x28x<b>6</b> -> FILTER: 10 x 5x5x<b>6</b> -> ACTIVATION MAP: 24x24x<b>10</b> </figcaption>
 

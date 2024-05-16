@@ -35,7 +35,7 @@ Where `learning_rate` is the hyperparameter. In practice, we barely use this van
 Consider a slope which is shallow horizontally and steep vertically. So with this approach, the gradients of the parameters would have high gradients vertically and small gradients horizontally, which then means the update would look like this.
 
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Optimization_techniques/SGD.png" alt='SGD vertical spikes' style="max-width: 100%; height: auto;">
   <figcaption>
   parameter present in shallow horizontally and steep vertically, converging to minima using SGD. 
@@ -56,7 +56,7 @@ Where `v` is the momentum that we build along the process of training and `mu` i
 
 This method overshoots but converges quickly compared to standard gradient descent.
 
-<figure style="display: flex;">
+<figure style="text-align: center;" style="display: flex;">
   <img src="{{site.baseurl}}/assets/Optimization_techniques/opt2.gif" alt='techniques' style="max-width: 50%; height: auto;">
   <img src="{{site.baseurl}}/assets/Optimization_techniques/opt1.gif" alt='techniques' style="max-width: 50%; height: auto;">
 </figure>
@@ -78,7 +78,7 @@ Nesterov momentum is a slightly different version of momentum that has gained po
 
 The core idea behind Nesterov momentum is that when the current parameter vector is at some position `x`, then looking at the momentum update above, we know that the momentum term alone (i.e. ignoring the second term with the gradient) is about to nudge the parameter vector by `mu * v`. Therefore, if we are about to compute the gradient, we can treat the future approximate position `x + mu * v` as a "lookahead" -- this is a point in the vicinity of where we are soon going to end up. Hence, it makes sense to compute the gradient at `x + mu * v` instead of at the "old/stale" position `x`.
 <br>
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Optimization_techniques/nesterov.png" alt='NAG' style="max-width: 100%; height: auto;">
   <figcaption>
   If we know the momentum of the parameter (calculated previously), we use that and calculate the gradients ahead in that position.
@@ -126,7 +126,7 @@ TLDR;
 - conclusion: *The gradient updates are vertical*. So, in this technique: the vertically updates are reduced and update look like this:
 
 <br>
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Optimization_techniques/adagrad.png" alt='adagrad' style="max-width: 100%; height: auto;">
   <figcaption> link to the Adagrad paper: 
   https://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf

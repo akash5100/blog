@@ -61,12 +61,12 @@ H8 -> mean:  0.0000, std:  0.0000
 H9 -> mean: -0.0001, std:  0.0000
 ```
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Batch_Normalization/squashing_activations.png" alt='Visualization showing hidden activations being squashed, a phenomenon known as neuron saturation' style="max-width: 100%; height: auto;">
   <figcaption>Visualization showing hidden activations being squashed, a phenomenon known as neuron saturation</figcaption>
 </figure>
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Batch_Normalization/viz_bad_acts.png" alt='Activations collasping to 0 (if initialized small) and it will saturate at ends if initialized bigger'>
   <figcaption>Activations collasping to 0 (if initialized small) and it will saturate at ends if initialized bigger</figcaption>
 </figure>
@@ -76,7 +76,7 @@ The Batch Normalization paper marked a significant milestone in deep learning. I
 
 As shown above in a tanh activation: if the weights are too large, activations saturate at 1 and -1, and if they're too close to zero, they saturate in the middle. Neither scenario is ideal.
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Batch_Normalization/bn_paper.png" alt='Image from the original BatchNorm paper' style="max-width: 100%; height: auto;">
   <figcaption>Image from the original BatchNorm paper</figcaption>
 </figure>
@@ -106,7 +106,7 @@ beta = torch.zeros(hidden_sz)
 gamma * h_normalized + beta # similar to XW + B :)
 ```
 
-<figure>
+<figure style="text-align: center;">
   <img src="{{site.baseurl}}/assets/Batch_Normalization/viz_good_acts.png" alt='3 linear layer with 3 batchnorm layer, slightly better acts?'>
   <figcaption>3 linear layer with 3 batchnorm layer, slightly better acts?</figcaption>
 </figure>
