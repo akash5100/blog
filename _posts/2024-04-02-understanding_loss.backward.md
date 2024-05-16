@@ -85,7 +85,7 @@ We are left with the gradient in the variables \([ \frac{\partial f}{\partial x}
 <br>
 <hr>
 <figure>
-  <img src="{{site.baseurl}}/assets/understanding_loss.backward()/bpeg1.png" alt='backprop example' height=250px>
+  <img src="{{site.baseurl}}/assets/understanding_loss.backward()/bpeg1.png" alt='backprop example' style="max-width: 100%; height: auto;"px>
   <figcaption>Image is from cs231n notes by Karpathy. Visualization of above example as circuit. The forward pass, left to right, (shown in green) computes values from inputs to output. The backward pass, right to left, then performs backpropogation which starts at the end and recursively applies the chain rule to compute the gradients (shown in red) all the way to the inputs.
   <br>
   Notice, in the addition node, the gradient (-4) flowed to both prior node equally, this is the basic idea of skip connections in ResNet.</figcaption>
@@ -231,7 +231,7 @@ dy += dsigy * ((1-sigy) * sigy)
 <br>
 <hr>
 <figure>
-  <img src="{{site.baseurl}}/assets/understanding_loss.backward()/bpeg2.png" alt='backprop example' height=250px>
+  <img src="{{site.baseurl}}/assets/understanding_loss.backward()/bpeg2.png" alt='backprop example' style="max-width: 100%; height: auto;"px>
   <figcaption>Image is from cs231n notes by Karpathy. An example circuit demonstrating the intuition behind the operations that backpropagation performs during the backward pass in order to compute the gradients on the inputs. Sum operation distributes gradients equally to all its inputs. Max operation routes the gradient to the higher input. Multiply gate takes the input activations, swaps them and multiplies by its gradient
   </figcaption>
 </figure>

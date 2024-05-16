@@ -16,10 +16,7 @@ I am learning how the transformer-based architectures got evolved from 2017 ("At
 
 
 #### How can unsupervised learning work?
-
-`TODO`
-
-[Why it works? Generalization?](https://www.youtube.com/watch?v=AKMuA_TVz3A)
+[Why it works? Generalization?](https://www.youtube.com/watch?v=AKMuA_TVz3A), hypothetically...
 
 ### GPT (June 2018)
 
@@ -50,13 +47,13 @@ zzz.
 
 
 
-### Transformer-XL (January 2019) and XLNet (June 2019)
+### Transformer-XL (September 2018) and XLNet (June 2019)
 
 **TL;DR:** In the next section, you'll learn that GPT-2 has a summarization problem - it struggles with long-term dependencies, leading to hallucinations like "color/log/hat/car" etc. While I couldn't find a specific paper addressing this issue, it's related to the limited attention scope within the context window. TransformerXL tackles this problem by increasing long-term dependencies without expanding the context window. Additionally, it introduces a new positional encoding technique called **Relative Positional Encoding**, which replaces the absolute positional encoding used in the original Transformer. This approach has been adopted in later models like OpenAI's "*[Fill In the Middle](https://arxiv.org/pdf/2207.14255)*" (2022).
 
 <hr>
 <figure>
-  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' height=180px>
+  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' style="max-width: 100%; height: auto;">
   <figcaption>Illustration of the vanilla transformer with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
 <hr>
@@ -71,7 +68,7 @@ TransformerXL used caching of Key and Value attention computation to speed up in
 
 <hr>
 <figure>
-  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-model.png" alt='xl-model' height=170px>
+  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-model.png" alt='xl-model' style="max-width: 100%; height: auto;">
   <figcaption>Illustration of the Transformer-XL with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
 <hr>
@@ -107,7 +104,7 @@ TransformerXL used caching of Key and Value attention computation to speed up in
 
 <hr>
 <figure>
-  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-incoherence.png" alt='xl-incoherence' height=300px>
+  <img src="{{site.baseurl}}/assets/Case_Study:_Transformer_based_architecture_development/xl-incoherence.png" alt='xl-incoherence' style="max-width: 100%; height: auto;">
   <figcaption>makes model confuse? ~from https://vimeo.com/384795188</figcaption>
 </figure>
 <hr>
@@ -116,7 +113,18 @@ TransformerXL used caching of Key and Value attention computation to speed up in
 `TODO-- easy already read the paper`
 
 ### Sparse Transformers (April 2019)
-`TODO`
+The Transformer architecture, introduced in the paper "Attention is All You Need" by Vaswani et al. in 2017, is a widely used neural network model for natural language processing tasks. However, its computational complexity and memory requirements grow quadratically with the sequence length, which can become a limitation for long sequences.
+
+- Given sequence of length `n`.
+  - number of computations required to process attention weights: `n x n = n^2`
+  - Memory required to store the intermediate results and attention weights grows quadratically
+
+
+### Reformer
+### Linformer
+### Vision Transformer & Image transformer (Niki paramr)
+### 
+
 
 ### RoBERTa (July 2019)
 `TODO`

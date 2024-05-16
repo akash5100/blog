@@ -40,7 +40,7 @@ For Translation, the prompt is `english sentence = french sentence
 Question Answering is a bit interesting and funny, figure out yourself. [Go here](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
 
 <figure>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/qa.png" alt='attention mechanism' height=500px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/qa.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Fine, here it is.
   </figcaption>
 </figure>
@@ -81,13 +81,13 @@ for token in gen:
 - Training model like GPT-2 (1.4B parameters) on a big and quality dataset, was enough to generalize diversity of Natural langauge sementics that it performed **zero-shot** on variety of task.
 
 <figure>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/one.png" alt='attention mechanism' height=600px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/one.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/two.png" alt='attention mechanism' height=600px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/two.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/three.png" alt='attention mechanism' height=600px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/three.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/four.png" alt='attention mechanism' height=600px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/four.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>some headmaps bruh, generating 4 different tokens each.
   </figcaption>
 </figure>
@@ -97,16 +97,16 @@ for token in gen:
 **Edit: okay, I trained a small 2 layer model, with good big context length in Amazon SageMaker, here are the results.**
 
 <figure>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/4.png" alt='attention mechanism' height=250px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/4.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Prompt: "Swift at the 1989 World Tour, the highest-grossing tour of 2015. In March 2014, Swift began living in New York City", prediction: " as"</figcaption>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/3.png" alt='attention mechanism' height=250px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/3.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Prompt: "New", preds: " York"</figcaption>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/2.png" alt='attention mechanism' height=250px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/2.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Prompt: "Are you", preds: " Harris"</figcaption>
   <hr>
-  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/1.png" alt='attention mechanism' height=250px>
+  <img src="{{site.baseurl}}/assets/I_challenged_myself_to_visualize_attentions/1.png" alt='attention mechanism' style="max-width: 100%; height: auto;">
   <figcaption>Prompt: "She is one of the most", preds: "-streamed" (it created most-streamed)</figcaption>
 </figure>
 
