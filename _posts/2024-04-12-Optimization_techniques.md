@@ -57,8 +57,8 @@ Where `v` is the momentum that we build along the process of training and `mu` i
 This method overshoots but converges quickly compared to standard gradient descent.
 
 <figure style="display: flex;">
-  <img src="{{site.baseurl}}/assets/Optimization_techniques/opt2.gif" alt='techniques' style="max-width: 100%; height: auto;">
-  <img src="{{site.baseurl}}/assets/Optimization_techniques/opt1.gif" alt='techniques' style="max-width: 100%; height: auto;">
+  <img src="{{site.baseurl}}/assets/Optimization_techniques/opt2.gif" alt='techniques' style="max-width: 50%; height: auto;">
+  <img src="{{site.baseurl}}/assets/Optimization_techniques/opt1.gif" alt='techniques' style="max-width: 50%; height: auto;">
 </figure>
   <figcaption>
   image credit: https://twitter.com/alecrad 
