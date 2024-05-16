@@ -121,10 +121,13 @@ The Transformer architecture, introduced in the paper "Attention is All You Need
 
 
 ### Reformer
-### Linformer
-### Vision Transformer & Image transformer (Niki paramr)
-### 
+`TODO`
 
+### Linformer
+`TODO`
+
+### Vision Transformer & Image transformer (Niki paramr)
+`TODO`
 
 ### RoBERTa (July 2019)
 `TODO`
