@@ -165,10 +165,9 @@ The paper introduced three key techniques to solve the quadratic complexity issu
     </figure>
     <hr>
 2. **Reuse attention matrices (saving memory)**  
-    - **Gradient checkpointing**  
-
+    - **[Gradient checkpointing](https://akash5100.github.io/blog/2024/05/16/Deep_network_Training_Hack_Gradient_Checkpointing.html)** is particularly effective for self-attention layers when long sequences are processed, as memory usage is high for these layers relative to the cost of computing them. Using recomputation alone, we are able to train dense attention networks with hundreds of layers on sequence lengths of 16,384, which would be infeasible on modern hardware otherwise.  
     - **Mixed precision training**  
-      Storing weights in single precision floating-point (32-bit), but compute network activations and gradients in half-precision (32-bit). (*Micikevicius et al., 2017*).
+      Storing weights in single precision floating-point (32-bit), but compute network activations and gradients in half-precision (32-bit). (*Micikevicius et al., 2017*).  
       - **Dynamic loss scaling.** When we use half precision to calculate activations and gradients, they are more prone to underflow (very small becoming 0) and overflow (very large becoming infinity). To fix that, when calculating gradient, the loss value is scaled (multiplied) with a large number, before backward pass. We then calculate the gradients. Unscale the gradients by dividing them by the scale value. Update the parameters using unscaled gradients.  
         
         Dynamic loss scaling is adaptive, meaning scale value is chosen *dynamically*. Initialized with a large number like 1024. After each backward pass, we check if the gradients contains any NaNs or Inf. If overflow, reduce the scaling factor by factor of 2. If no overflow, increase the scaling factor optionally. [[Pytorch docs]](https://pytorch.org/docs/stable/amp.html#torch.cuda.amp.GradScaler)
@@ -176,21 +175,25 @@ The paper introduced three key techniques to solve the quadratic complexity issu
 3. **Efficient sparse attention kernels**  
     - **Fused Softmax kernel**  
       Typically, the softmax operation is computed as a seperate kernel or function that requires writing, loading, computing and again writing. This paper proposes fusing the softmax operation into single kernel that uses registers to avoid reloading inputs. This means that the softmax operation is computed directly in the kernel, without storing and loading.
+    - No need to calculate the upper triangular in attention, as it is never used in autoregressive task.
 
 
 
 
-<!-- 
-### T5 2020
-### Reformer 2020
-### ALBERT 2019
-### BART 2020
-### Longformer
-### GShard
-### Switch Transformer
+<!--
+- BERT 99k
+- RoBERTa July 2019 12k
+- ALBERT Sep 2019 6k
+- T5 Oct 2019 15k
+- Scaling law of neural language modelsThis is important that Search index What the **** Right ZIX belongs to PY. This is equal to Woo Show me the image. Thank you. Two after three He made a young man VA2 VIP VAN UIE and then.  Jan 2020
+- DistilBERT March 2020 6k
+- Longformer 3k
+- BART 9k
+- GShard Jun 2020 700
 
-### Linformer
+- Reformer Jan 2020 2k
+- Linformer Jun 2020 1k
+- Switch Transformer
+
 ### Vision Transformer & Image transformer (Niki paramr)
-### RoBERTa (July 2019)
-### DistilBERT (March 2020) 
 -->
