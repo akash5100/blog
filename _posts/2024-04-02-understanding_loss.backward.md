@@ -227,7 +227,7 @@ dy += dsigy * ((1-sigy) * sigy)
 **Gradients add up at forks.** The forward expression involves the variables x,y multiple times, so when we perform backpropagation we must be careful to use `+=` instead of `=` to accumulate the gradient on these variables (otherwise we would overwrite it). This follows the multivariable chain rule in Calculus, which states that if a variable branches out to different parts of the circuit, then the gradients that flow back to it will add.
 <hr>
 <figure style="text-align: center;">
-  <img src="{{site.baseurl}}/assets/understanding_loss.backward()/bpeg2.png" alt='backprop example' style="max-width: 100%; height: auto;">
+  <img src="{{site.baseurl}}/assets/understanding_loss_backward/bpeg2.png" alt='backprop example' style="max-width: 100%; height: auto;">
   <figcaption>Image is from cs231n notes by Karpathy. An example circuit demonstrating the intuition behind the operations that backpropagation performs during the backward pass in order to compute the gradients on the inputs. Sum operation distributes gradients equally to all its inputs. Max operation routes the gradient to the higher input. Multiply gate takes the input activations, swaps them and multiplies by its gradient
   </figcaption>
 </figure>
