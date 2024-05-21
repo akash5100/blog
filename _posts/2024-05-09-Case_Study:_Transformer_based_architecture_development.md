@@ -34,7 +34,7 @@ https://openai.com/index/language-unsupervised/
 
 ### BERT (October 2018)
 
-Google introduced [BERT](https://arxiv.org/abs/1810.04805), which stands for **B**idirectional **E**ncoder **R**epresentations from **T**ransformers. It is another language model based on Transformer architecture but unlike recent language models BERT Is designed To pretrain deep bidirectional representation from unlabeled text. As a result, the pre-trained BERT model can be fine tuned with just one additional output layer to create state of the art models for a wide range of tasks such as question-answering, system language inference. Without any substantial task-specific architecture modification.
+Google introduced [BERT](https://arxiv.org/abs/1810.04805), which stands for **B**idirectional **E**ncoder **R**epresentations from **T**ransformers. It is another language model based on Transformer architecture but unlike recent language models BERT is designed To pretrain bidirectional representation from unlabeled text. As a result, the pre-trained BERT model can be fine tuned with just one additional output layer to create state of the art models for a wide range of tasks such as question-answering, system language inference. Without any substantial task-specific architecture modification.
 
 Language model pre-training has been shown to be effective in the recent years. There are two existing strategies for applying pre-trained language representation to down-stream tasks:
 1. **feature-based**: Uses task-specific architecture, example adding a layer at the end of the trained model and train them for downstream task.
@@ -44,16 +44,16 @@ The two approaches share the same objective function during pre-training, where 
 
 > Current technique limit the potential of pre-trained representations. Especially for fine tuning the issue stems from the unidirectional nature of standard language model like openai's GPT. Which only allows token to attend from past. This restriction hampers performance and task requiring bidirectional context, such as question answering.
 
-**Architecture.** The architecture was based on original Transformer based on Vaswani et al. (2017). BERT-base parameters equals to GPT-base for comparision purposes. But BERT uses bidirection self-attention. While the GPT uses constrained self-attention where every token can only attend to context to its left, BERT can see in both direction. This means BERT uses the Encoder-only part of the Transformer.
-
-**Input/Output representations** BERT can handle `TODO`, `[CLS]`, `[SEP]`, `[MASK]`
-zzz.
+**Architecture.** The architecture was based on original Transformer based on Vaswani et al. (2017). BERT-base parameters equals to GPT-base for comparision purposes. But BERT uses bidirection self-attention. While the GPT uses constrained self-attention where every token can only attend to context to its left, BERT can see in both direction. This means BERT uses the *Encoder-only* part of the Transformer.
 
 **PreTraining BERT** Implementing this (encoder-only model) however was challenging. Unfortunately, standard conditional language models can only be trained left-to-right or right-to-left, since bidirectional would allow each word to indirectly attent itself (they called it "see itself") and with this instead of learning important features, the model would cheat and wont learn anything at all. In order to fix this, BERT is trained using two unsupervised task.
 
 - **TASK #1: Masked Sequence**: they masked some percentange of the input tokens at random, and then predict those tokens. This procedure is called **"masked LM (LML)"**. Introduced back in 1952 (Taylor, Cloze task in the literature).
 - **TASK #2: Next Sequence Prediction**: `TODO`
 
+**Input/Output representations** BERT can handle, `[CLS]`, `[SEP]`, `[MASK]` and `[PAD]`. `TODO` explain the input and output of BERT.
+
+I pretrained a BERT model from scratch. [see :)]()
 
 
 ### Transformer-XL (September 2018) and XLNet (June 2019)
