@@ -1,5 +1,5 @@
 ---
-title: 'Gradient-Checkpointing, a hack for training deep NN'
+title: 'Gradient-Checkpointing'
 tags: deeplearning
 ---
 

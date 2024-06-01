@@ -1,5 +1,5 @@
 ---
-title: Convolutional Neural Networks (CNNs / ConvNets)
+title: CNNs
 tags: deeplearning
 ---
 

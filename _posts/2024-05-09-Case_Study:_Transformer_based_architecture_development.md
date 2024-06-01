@@ -1,5 +1,5 @@
 ---
-title: 'Case Study: Transformer-Based architecture development'
+title: 'Case Study on Transformer-based architecture'
 tags: deeplearning
 ---
 
@@ -114,7 +114,30 @@ TransformerXL used caching of Key and Value attention computation to speed up in
       <figcaption>makes model confuse? ~from https://vimeo.com/384795188</figcaption>
     </figure>
     <hr>
-  To fix this. its a `todo`  
+  To fix this the authors introduced the concept of "relative positional encoding" to capture the relative position information between the element in the input sequence. This is different from The absolute positional encoding used in the original transformer model, which represents the absolute position of each element in the sequence.  
+  The idea behind "relative positional encoding" is to represent the positional information as a relative distance between elements rather than their absolute positions.  
+  This is particularly useful for processing sequence as it allow module to generalize better. The sequence of different length.  
+
+    ```md
+    Original transformer:
+    E = VE + PE (Vocab Embeddings + Positional Embeddings)
+    TransformerXL, incorporates directly VE and PE into attention:
+    Attn = F(VE,PE)
+
+    > similar sinusoidal functions are used to generate positional embeddings  
+    > additional relative_pos and relative_key encodings are also generated, along with Q, K and V  
+      - Q, K, V, rel_key and rel_pos
+      - relative_pos: Learnable relative positional embeddings. (Parameter)
+      - relative_key: Derived from relative_pos using a linear transformation. (Linear)
+    > 2 attn scores are calculated: content-based & position-based  
+      - content-based: Q @ K.T
+      - position-based: 
+          rel_k = rel_pos -> rel_key
+          Q @ rel_k.T 
+    > attn = content-based + position-based
+    (continue attention scale, tril, softmax, V ...) 
+    ```
+
 
 ### GPT-2 (February 2019)
 `TODO-- easy already read the paper`
@@ -167,7 +190,7 @@ The paper introduced three key techniques to solve the quadratic complexity issu
 2. **Reuse attention matrices (saving memory)**  
     - **[Gradient checkpointing](https://akash5100.github.io/blog/2024/05/16/Deep_network_Training_Hack_Gradient_Checkpointing.html)** is particularly effective for self-attention layers when long sequences are processed, as memory usage is high for these layers relative to the cost of computing them. Using recomputation alone, we are able to train dense attention networks with hundreds of layers on sequence lengths of 16,384, which would be infeasible on modern hardware otherwise.  
     - **Mixed precision training**  
-      Storing weights in single precision floating-point (32-bit), but compute network activations and gradients in half-precision (32-bit). (*Micikevicius et al., 2017*).  
+      Storing weights in single precision floating-point (32-bit), but compute network activations and gradients in half-precision (16-bit). (*Micikevicius et al., 2017*).  
       - **Dynamic loss scaling.** When we use half precision to calculate activations and gradients, they are more prone to underflow (very small becoming 0) and overflow (very large becoming infinity). To fix that, when calculating gradient, the loss value is scaled (multiplied) with a large number, before backward pass. We then calculate the gradients. Unscale the gradients by dividing them by the scale value. Update the parameters using unscaled gradients.  
         
         Dynamic loss scaling is adaptive, meaning scale value is chosen *dynamically*. Initialized with a large number like 1024. After each backward pass, we check if the gradients contains any NaNs or Inf. If overflow, reduce the scaling factor by factor of 2. If no overflow, increase the scaling factor optionally. [[Pytorch docs]](https://pytorch.org/docs/stable/amp.html#torch.cuda.amp.GradScaler)
