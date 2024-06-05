@@ -1,6 +1,6 @@
-.PHONY: start clean build run
+.PHONY: create clean build run
 
-start:
+create:
 	docker run -it -p 4000:4000 -v "$(PWD):/srv/jekyll" blog sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
 
 clean:
