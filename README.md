@@ -22,7 +22,7 @@ bundle exec jekyll build # Build the project
 
 * Start the server (need for first time to install `gem` dependencies)
   ```bash
-  make start
+  make create
   ```
 
 * get container name using:
