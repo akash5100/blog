@@ -1,5 +1,5 @@
 ---
-title: Creating simple RAG
+title: Creating simple RAG (1/2)
 tags: deeplearning
 ---
 
@@ -87,7 +87,7 @@ After retrieving content when generating the BART model: we combine input vector
 > This again raises question: If BERT outperformed GPT-2 of same parameter size and BART outperformed BERT, T5 and GPT-2 of same size, can a encoder-decoder model similar to BART of GPT-4 parameter size will outperform GPT-4?
 
 **Training**  
-Updating the document encoder D while training was not step so they (authors) only finetuned the query encoder Q and the generator G, which is the BART model.
+Updating the document encoder D while training showed no significant improvement + its was slow, so they (authors) decided to freeze the document encoder and only finetuned the query encoder Q and the generator G, which is the BART model.
 ### Final small detail before we create our own embedder:
 They introduced 2 architectures:
 - RAG sequence
@@ -106,16 +106,29 @@ Before this paper, another paper tried to create RAG, they used something called
 
 I found out that there is a leaderboard for data embedders called MTEB (Massive Text Embedding Benchmark), the models in this leaderboard are named as Qwen2-instruct, Mistral, Meta-llama, these are LLMs, so we can use LLMs to create embeddings, or rather (just assumtions ahead) instead of predicting the next tokens we can somehow use the hidden layers of the LLMs as Embeddings? or maybe make them give the embeddings in an unsupervised way?
 
-I found this paper [S-BERT / Sentence BERT](https://arxiv.org/pdf/1908.10084), sounds promising for our understanding, because it used BERT to create encoder.
+It turns out, for creating embeddings from scratch: the skip-gram model (and word2vec in general) is one way to create word embeddings from scratch. This process is often called "training word embeddings" or "learning word representations." Its unsupervised training as expected.
+  
+**Bag-of-words Model**  
+In bag of words, as we know given a context predict the target. BoW dont consider the context in which the words appear, it just considers the frequency.
 
-```md
-TODO: learn how to encode things
-```
+**Skip-Gram model**  
+Skip gram is opposite of BoW, given a target predict the context, example for a given sentence: "Hello how are you bob?", if the target is "bob" we might have dataset like (bob, hello), (bob, you) etc.
+
+Word2Vec uses this two approaches for generating word embeddings. Its word level, for our use case, which is creating embeddings for documents like articles/blog, we might need to go beyond word-level, something like sentence, passage or even document-level embeddings.
+
+Modern techniques do use pre-trained LLMs such as BERT and fine-tune them for generating embeddings or they use average of hidden states to create embeddings.
+
+For our problem, I found this paper [S-BERT / Sentence BERT](https://arxiv.org/pdf/1908.10084), sounds promising for our understanding, because it used BERT to create encoder.
+
+### Sentence-BERT
+- see you on part 2
 
 ## Roadmap to MinRAG:
+From what I understand, I need a document, query encoder and a generator
 - Use S-BERT (small) as encoder (probably)
 - Use GPT-2 (small) as generator
 - setup encoder
   - some how encode few wiki pages and store it?
   - encode query
+  - use MCSS and get top-k vectors
 - concat and generate
