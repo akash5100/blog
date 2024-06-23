@@ -1,5 +1,5 @@
 ---
-title: Creating simple RAG (1/2)
+title: Creating simple RAG
 tags: deeplearning
 ---
 
@@ -83,7 +83,7 @@ In this paper, the author used BERT base as an encoder and maximum inner product
 
 After retrieving content when generating the BART model: we combine input vector X with Z by simply concatenating them. 
 
-> This is why they choose BART: BART was pre-trained using a denoising objective and a variety of different noising functions. It has achieved state-of-the-art (SOTA) results on a diverse set of generation tasks and outperforms comparable-sized T5 models.
+> This is why they choose BART: BART was pre-trained using a denoising objective and a variety of different noising functions. It has achieved state-of-the-art (SOTA) results on a diverse set of generation tasks and outperforms comparable-sized T5 models.  
 > This again raises question: If BERT outperformed GPT-2 of same parameter size and BART outperformed BERT, T5 and GPT-2 of same size, can a encoder-decoder model similar to BART of GPT-4 parameter size will outperform GPT-4?
 
 **Training**  
@@ -121,7 +121,7 @@ Modern techniques do use pre-trained LLMs such as BERT and fine-tune them for ge
 For our problem, I found this paper [S-BERT / Sentence BERT](https://arxiv.org/pdf/1908.10084), sounds promising for our understanding, because it used BERT to create encoder.
 
 ### Sentence-BERT
-- see you on part 2
+> todo
 
 ## Roadmap to MinRAG:
 From what I understand, I need a document, query encoder and a generator
