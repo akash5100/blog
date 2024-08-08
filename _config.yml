@@ -17,7 +17,7 @@ remote_theme: jekyll/minima
 # remote_theme: b2a3e8/jekyll-theme-console
 
 minima:
-  skin: dark
+  # skin: dark
   social_links:
     - { platform: github, user_url: "https://github.com/akash5100" }
     - { platform: x,      user_url: "https://x.com/akzsh5100" }
