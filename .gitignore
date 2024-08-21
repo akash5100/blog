@@ -7,3 +7,4 @@ vendor
 *.obsidian
 *.env
 *.canvas
+.DS_Store
