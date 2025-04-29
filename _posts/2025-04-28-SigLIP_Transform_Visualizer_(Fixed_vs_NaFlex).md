@@ -5,7 +5,6 @@ title: SigLIP Transform Visualizer (Fixed vs NaFlex)
 tags: Representation Learning
 ---
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
