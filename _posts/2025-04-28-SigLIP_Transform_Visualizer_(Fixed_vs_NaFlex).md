@@ -9,7 +9,7 @@ tags: Representation Learning
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SigLIP Transform Visualizer (Fixed vs. NaFlex)</title>
+    <title>SigLIP Transform Visualizer (Fixed vs. NaFlex - Synced Zoom)</title>
     <style>
         body {
             font-family: sans-serif;
@@ -67,6 +67,7 @@ tags: Representation Learning
          .controls input[type="file"] {
              width: auto;
          }
+
         .image-box {
             border: 1px solid #ccc;
             padding: 15px;
@@ -80,13 +81,15 @@ tags: Representation Learning
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative; /* Needed for magnifier positioning context */
+            position: relative; /* Crucial for positioning magnifier inside */
+            overflow: hidden; /* Prevent magnifier spilling out visually */
         }
         .image-box h3 {
             margin-top: 0;
             color: #555;
             font-size: 1.1em;
         }
+        /* Base styles for images/canvases */
         .image-box img, .image-box canvas {
             max-width: 100%;
             height: auto;
@@ -94,12 +97,22 @@ tags: Representation Learning
             margin: 10px auto;
             background-color: #e0e0e0; /* Canvas background for padding viz */
             border: 1px dashed #aaa;
-            cursor: crosshair; /* Indicate zoom possible */
-        }
+         }
+         /* Specific canvas styling (including zoomable) */
          .image-box canvas {
              max-height: 300px;
              width: auto;
              max-width: 100%;
+         }
+        /* Target only zoomable canvases for crosshair */
+        .image-box canvas.zoomable-canvas {
+             cursor: crosshair; /* Indicate zoom possible */
+         }
+         /* Non-zoomable image/canvas (like original) shouldn't have crosshair */
+         .image-box img, .image-box canvas:not(.zoomable-canvas) {
+             cursor: default;
+             border: none; /* Remove border from original */
+             background: none;
          }
         .image-box p {
             margin-top: 10px;
@@ -118,19 +131,20 @@ tags: Representation Learning
             width: 100%;
             padding: 50px 0;
          }
+
         /* --- Magnifier Styles --- */
-        #magnifier {
+        .magnifier { /* Changed ID to class */
             position: absolute;
-            border: 3px solid lightgray;
+            border: 2px solid rgba(180, 180, 180, 0.8); /* Slightly softer border */
             border-radius: 50%; /* Circular */
-            width: 150px;  /* Magnifier size */
-            height: 150px;
+            width: 120px;  /* Adjust size as needed */
+            height: 120px;
             cursor: none; /* Hide cursor over magnifier */
             display: none; /* Hidden by default */
             background-repeat: no-repeat;
             z-index: 10;
             pointer-events: none; /* Prevent magnifier from blocking mouse events on canvas */
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 8px rgba(0,0,0,0.25);
             background-color: #fff; /* Fallback bg */
         }
     </style>
@@ -138,7 +152,8 @@ tags: Representation Learning
 <body>
     <div class="container">
         <h1>SigLIP Transform Visualizer</h1>
-        <p style="text-align: center;">Compare Fixed Resolution vs. NaFlex image preprocessing for ViTs.</p>
+        <p style="text-align: center;">Compare Fixed Resolution vs. NaFlex image preprocessing (with synchronized zoom).</p>
+
         <div class="controls">
             <div>
                 <label for="imageUpload">Upload Image:</label>
@@ -157,29 +172,32 @@ tags: Representation Learning
                 <input type="text" id="naflexSeqLens" value="256, 576, 1024">
             </div>
         </div>
+
         <div class="visualization-area" id="visualizationArea">
              <p id="placeholder">Upload an image and adjust parameters to see the transforms.</p>
             <!-- Image boxes will be added here by JS -->
         </div>
-        <!-- Magnifier Element (add outside the container or adjust z-index/positioning) -->
-        <div id="magnifier"></div>
+
+        <!-- Magnifier Elements are now dynamically added inside .image-box by JS -->
+
     </div>
+
     <script>
         const imageUpload = document.getElementById('imageUpload');
         const patchSizeInput = document.getElementById('patchSize');
         const fixedResInput = document.getElementById('fixedRes');
-        const naflexSeqLensInput = document.getElementById('naflexSeqLens'); // Renamed
+        const naflexSeqLensInput = document.getElementById('naflexSeqLens');
         const visualizationArea = document.getElementById('visualizationArea');
         const placeholder = document.getElementById('placeholder');
-        const magnifier = document.getElementById('magnifier'); // Get magnifier element
 
         let currentImage = null;
         const zoomLevel = 2.5; // Magnification factor
+        let leaveTimeoutId = null; // For delayed hiding
 
         imageUpload.addEventListener('change', handleImageUpload);
         patchSizeInput.addEventListener('input', processCurrentImage);
         fixedResInput.addEventListener('input', processCurrentImage);
-        naflexSeqLensInput.addEventListener('input', processCurrentImage); // Listener for new input
+        naflexSeqLensInput.addEventListener('input', processCurrentImage);
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -203,7 +221,16 @@ tags: Representation Learning
         }
 
         function clearVisualization() {
-            visualizationArea.innerHTML = '';
+            visualizationArea.innerHTML = ''; // Clear everything
+            // Remove lingering event listeners from the container
+            visualizationArea.removeEventListener('mousemove', handleSyncMouseMove);
+            visualizationArea.removeEventListener('mouseenter', handleSyncMouseEnter, true); // Use capture phase
+            visualizationArea.removeEventListener('mouseleave', handleSyncMouseLeave);
+            if (leaveTimeoutId) {
+                 clearTimeout(leaveTimeoutId); // Clear any pending hide
+                 leaveTimeoutId = null;
+            }
+
             visualizationArea.appendChild(placeholder);
             placeholder.style.display = 'block';
         }
@@ -216,22 +243,22 @@ tags: Representation Learning
                 return;
             }
 
+             // Clear previous results and listeners before adding new ones
+            clearVisualization();
             placeholder.style.display = 'none';
-            visualizationArea.innerHTML = ''; // Clear previous results
 
             const patchSize = parseInt(patchSizeInput.value) || 16;
             const fixedRes = parseInt(fixedResInput.value) || 384;
-            const naflexSeqLensStr = naflexSeqLensInput.value || "256"; // Default if empty
+            const naflexSeqLensStr = naflexSeqLensInput.value || "256";
 
-            // Parse comma-separated sequence lengths
             const targetSeqLens = naflexSeqLensStr
                 .split(',')
                 .map(s => parseInt(s.trim()))
-                .filter(n => !isNaN(n) && n > 0); // Filter valid positive integers
+                .filter(n => !isNaN(n) && n > 0);
 
             if (patchSize <= 0 || fixedRes <= 0 || targetSeqLens.length === 0) {
                 alert("Parameters (Patch Size, Fixed Res) must be positive numbers, and at least one valid NaFlex Seq Len is required.");
-                clearVisualization();
+                clearVisualization(); // Show placeholder again
                 return;
             }
 
@@ -242,41 +269,47 @@ tags: Representation Learning
             // --- 1. Fixed Resolution Transform ---
             const fixedBox = createImageBox('Fixed Resolution');
             const fixedCanvas = document.createElement('canvas');
+            fixedCanvas.classList.add('zoomable-canvas'); // Mark as zoomable
             setupFixedCanvas(fixedCanvas, img, fixedRes, patchSize, fixedBox);
+            addMagnifierElement(fixedBox); // Add magnifier div
             visualizationArea.appendChild(fixedBox);
+            triggerCanvasUpdate(fixedCanvas); // Update data URL after drawing
 
             // --- 2. Original Image ---
             const originalBox = createImageBox('Original');
             setupOriginalBox(originalBox, img, originalW, originalH);
+            // NO magnifier for original box
             visualizationArea.appendChild(originalBox);
 
             // --- 3. NaFlex Transforms (Loop through specified lengths) ---
             targetSeqLens.forEach(targetSeqLen => {
                 const naflexBox = createImageBox(`NaFlex (Seq Len: ${targetSeqLen})`);
                 const naflexCanvas = document.createElement('canvas');
+                naflexCanvas.classList.add('zoomable-canvas'); // Mark as zoomable
                 setupNaflexCanvas(naflexCanvas, img, patchSize, targetSeqLen, naflexBox);
+                addMagnifierElement(naflexBox); // Add magnifier div
                 visualizationArea.appendChild(naflexBox);
-
-                // Add hover zoom listeners to this NaFlex canvas
-                addMagnifierEvents(naflexCanvas);
+                triggerCanvasUpdate(naflexCanvas); // Update data URL after drawing
             });
+
+            // --- Add Synchronized Event Listeners AFTER elements are in DOM ---
+            addSyncEventListeners();
         }
 
-        // --- Helper Functions for Setup ---
+        // --- Helper Functions for Setup (Modified/New) ---
 
         function setupFixedCanvas(canvas, img, fixedRes, patchSize, box) {
             canvas.width = fixedRes;
             canvas.height = fixedRes;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, fixedRes, fixedRes); // Resize (and distort)
+            ctx.drawImage(img, 0, 0, fixedRes, fixedRes); // Resize (and distort if needed)
 
             const tokensPerRow = fixedRes / patchSize;
             const fixedTokens = tokensPerRow * tokensPerRow;
 
-            box.appendChild(canvas);
+            box.appendChild(canvas); // Append canvas FIRST
             addInfo(box, `Target Res: <span class="info">${fixedRes} x ${fixedRes}</span>`);
             addInfo(box, `Input Tokens: <span class="info">${Math.round(fixedTokens)}</span> (${isValidGrid(tokensPerRow) ? `${tokensPerRow} x ${tokensPerRow}` : 'Invalid Patch'}) patches`);
-             // AddMagnifierEvents(canvas); // Optionally add magnifier to fixed res too
         }
 
          function setupOriginalBox(box, img, originalW, originalH) {
@@ -284,9 +317,6 @@ tags: Representation Learning
              originalImgElement.src = img.src;
              originalImgElement.style.maxWidth = '100%'; // Use container max width
              originalImgElement.style.maxHeight = '280px'; // Limit display height
-             originalImgElement.style.border = 'none';
-             originalImgElement.style.background = 'none';
-             originalImgElement.style.cursor = 'default'; // No zoom on original
 
              box.appendChild(originalImgElement);
              addInfo(box, `Dimensions: <span class="info">${originalW} x ${originalH}</span>`);
@@ -297,13 +327,12 @@ tags: Representation Learning
             const originalH = img.naturalHeight;
             const naflexCtx = canvas.getContext('2d');
 
-            // Calculate NaFlex dimensions
             const { targetW, targetH, actualPatchesW, actualPatchesH, finalTokens } = calculateNaflexDims(
                 originalW, originalH, patchSize, targetSeqLen
             );
 
             if (targetW <= 0 || targetH <= 0 || finalTokens <= 0) {
-                 addInfo(box, `Calculation Error: Check inputs.`)
+                 addInfo(box, `<span style="color: red;">Calculation Error: Check inputs.</span>`)
                  addInfo(box, `(Target Seq Len: ${targetSeqLen})`);
                  return; // Skip drawing if dims are invalid
             }
@@ -319,7 +348,7 @@ tags: Representation Learning
             naflexCtx.fillRect(0, 0, targetW, targetH);
             naflexCtx.drawImage(img, offsetX, offsetY, drawW, drawH);
 
-            box.appendChild(canvas);
+            box.appendChild(canvas); // Append canvas FIRST
             addInfo(box, `Grid Res: <span class="info">${targetW} x ${targetH}</span>`);
             addInfo(box, `Input Tokens: <span class="info">${finalTokens}</span> (${isValidGrid(actualPatchesW) ? `${actualPatchesW} x ${actualPatchesH}` : 'Invalid Grid'}) patches`);
             addInfo(box, `(Target Seq Len: ${targetSeqLen})`);
@@ -329,66 +358,104 @@ tags: Representation Learning
         // --- Calculation Helper Functions ---
 
          function calculateNaflexDims(originalW, originalH, patchSize, targetSeqLen) {
+            // Ensure inputs are valid numbers before proceeding
+            if (isNaN(originalW) || isNaN(originalH) || isNaN(patchSize) || isNaN(targetSeqLen) || patchSize <= 0) {
+                 return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
+            }
+
             let patchesW = Math.ceil(originalW / patchSize);
             let patchesH = Math.ceil(originalH / patchSize);
             let totalPatches = patchesW * patchesH;
 
-            if (patchesW <= 0 || patchesH <= 0) return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 }; // Avoid division by zero etc.
+            // Handle edge case where original image is smaller than a patch
+            if (patchesW <= 0) patchesW = 1;
+            if (patchesH <= 0) patchesH = 1;
+            if (totalPatches <= 0) totalPatches = 1; // Need at least one patch conceptually
+
 
             let actualPatchesW, actualPatchesH;
 
             if (totalPatches <= targetSeqLen) {
+                // Use original patch grid if it's already within the target
                 actualPatchesW = patchesW;
                 actualPatchesH = patchesH;
             } else {
+                // Calculate scaling factor
                 const scale = Math.sqrt(targetSeqLen / totalPatches);
                 actualPatchesW = Math.floor(patchesW * scale);
                 actualPatchesH = Math.floor(patchesH * scale);
 
+                // Ensure at least 1x1 grid
                 actualPatchesW = Math.max(1, actualPatchesW);
                 actualPatchesH = Math.max(1, actualPatchesH);
 
-                // Iteratively reduce dimensions if product exceeds target, prioritizing aspect ratio
+                // Iteratively reduce dimensions if product still exceeds target,
+                // prioritizing aspect ratio preservation by reducing the larger dimension.
                 while (actualPatchesW * actualPatchesH > targetSeqLen && (actualPatchesW > 1 || actualPatchesH > 1)) {
-                     const currentTotal = actualPatchesW * actualPatchesH;
-                     // Try reducing width
-                     const potentialTotalW = (actualPatchesW - 1) * actualPatchesH;
-                     // Try reducing height
-                     const potentialTotalH = actualPatchesW * (actualPatchesH - 1);
+                     const currentAspect = actualPatchesW / actualPatchesH;
+                     const originalAspect = patchesW / patchesH;
 
-                     // Check which reduction keeps more patches (closer to target) or maintains aspect ratio better
-                     // Simple approach: reduce the larger dimension if possible
-                     if (actualPatchesW > actualPatchesH && actualPatchesW > 1) {
+                     // Decide which dimension to reduce
+                     if (actualPatchesW > 1 && actualPatchesH > 1) {
+                         // Reduce the dimension that brings the aspect ratio closer to the original
+                         const aspectIfWReduced = (actualPatchesW - 1) / actualPatchesH;
+                         const aspectIfHReduced = actualPatchesW / (actualPatchesH - 1);
+
+                         if (Math.abs(aspectIfWReduced - originalAspect) <= Math.abs(aspectIfHReduced - originalAspect)) {
+                             actualPatchesW--;
+                         } else {
+                             actualPatchesH--;
+                         }
+                     } else if (actualPatchesW > 1) { // Only width can be reduced
                          actualPatchesW--;
-                     } else if (actualPatchesH > 1) {
+                     } else if (actualPatchesH > 1) { // Only height can be reduced
                          actualPatchesH--;
-                     } else if (actualPatchesW > 1) { // Only width is > 1
-                          actualPatchesW--;
                      } else {
-                         break; // Cannot reduce further
+                         break; // Cannot reduce further (1x1)
                      }
                 }
             }
+
+             // Ensure final dimensions are at least 1x1 patch
+            actualPatchesW = Math.max(1, actualPatchesW);
+            actualPatchesH = Math.max(1, actualPatchesH);
 
              const targetW = actualPatchesW * patchSize;
              const targetH = actualPatchesH * patchSize;
              const finalTokens = actualPatchesW * actualPatchesH;
 
+             // Final sanity check
+             if (isNaN(targetW) || isNaN(targetH) || isNaN(finalTokens) || targetW <= 0 || targetH <= 0 || finalTokens <= 0) {
+                 console.error("NaFlex calculation resulted in invalid dimensions:", {targetW, targetH, finalTokens});
+                 return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
+             }
+
              return { targetW, targetH, actualPatchesW, actualPatchesH, finalTokens };
          }
 
          function calculateDrawParams(imgW, imgH, canvasW, canvasH) {
+             // Handle potential division by zero or invalid inputs
+             if (imgH <= 0 || canvasH <= 0 || imgW <= 0 || canvasW <= 0) {
+                 return { drawW: canvasW, drawH: canvasH, offsetX: 0, offsetY: 0 }; // Default to fill if inputs invalid
+             }
+
              const imgAspectRatio = imgW / imgH;
              const canvasAspectRatio = canvasW / canvasH;
              let drawW = canvasW, drawH = canvasH;
              let offsetX = 0, offsetY = 0;
 
-             if (imgAspectRatio > canvasAspectRatio) { // Image wider rel to canvas
+             if (imgAspectRatio > canvasAspectRatio) { // Image wider than canvas aspect ratio (letterbox)
                  drawH = canvasW / imgAspectRatio;
                  offsetY = (canvasH - drawH) / 2;
-             } else { // Image taller or same ratio rel to canvas
+             } else if (imgAspectRatio < canvasAspectRatio) { // Image taller than canvas aspect ratio (pillarbox)
                  drawW = canvasH * imgAspectRatio;
                  offsetX = (canvasW - drawW) / 2;
+             } else {
+                 // Aspect ratios match, fill the canvas
+                 drawW = canvasW;
+                 drawH = canvasH;
+                 offsetX = 0;
+                 offsetY = 0;
              }
              return { drawW, drawH, offsetX, offsetY };
          }
@@ -407,6 +474,7 @@ tags: Representation Learning
             const h3 = document.createElement('h3');
             h3.textContent = title;
             box.appendChild(h3);
+            // Magnifier added later if needed by addMagnifierElement
             return box;
         }
 
@@ -416,91 +484,150 @@ tags: Representation Learning
             box.appendChild(p);
         }
 
+        function addMagnifierElement(box) {
+            const magnifier = document.createElement('div');
+            magnifier.classList.add('magnifier');
+            box.appendChild(magnifier); // Append magnifier to its box
+        }
 
-        // --- Magnifier Logic ---
-
-        let currentMagnifiedCanvas = null; // Track which canvas is being magnified
-
-        function addMagnifierEvents(canvas) {
-            // Store the image data URL once on the element for efficiency
-            canvas.dataset.imageDataUrl = canvas.toDataURL();
-
-            canvas.addEventListener('mouseenter', handleMouseEnter);
-            canvas.addEventListener('mousemove', handleMouseMove);
-            canvas.addEventListener('mouseleave', handleMouseLeave);
-            // Update data URL if canvas content changes (e.g., parameters update)
-             canvas.addEventListener('update', () => {
+        // Update canvas data URL (call after drawing/redrawing)
+        function triggerCanvasUpdate(canvas) {
+             // Use try/catch as toDataURL can fail in some edge cases (e.g., tainted canvas)
+             try {
                  canvas.dataset.imageDataUrl = canvas.toDataURL();
-             });
-        }
-
-         // Trigger update event helper (call after drawing/redrawing a canvas)
-         function triggerCanvasUpdate(canvas) {
-             canvas.dispatchEvent(new Event('update'));
-         }
-
-         // Call this after drawing on canvases that need zoom
-         // In setupFixedCanvas: triggerCanvasUpdate(canvas);
-         // In setupNaflexCanvas: triggerCanvasUpdate(canvas);
-
-
-        function handleMouseEnter(e) {
-            const canvas = e.target;
-            currentMagnifiedCanvas = canvas; // Set current canvas
-            const imgDataUrl = canvas.dataset.imageDataUrl;
-            if (!imgDataUrl) return; // Safety check
-
-            magnifier.style.backgroundImage = `url(${imgDataUrl})`;
-            magnifier.style.backgroundSize = `${canvas.width * zoomLevel}px ${canvas.height * zoomLevel}px`;
-            magnifier.style.display = 'block';
-        }
-
-        function handleMouseLeave(e) {
-            magnifier.style.display = 'none';
-            currentMagnifiedCanvas = null; // Clear current canvas
-        }
-
-        function handleMouseMove(e) {
-            if (!currentMagnifiedCanvas || currentMagnifiedCanvas !== e.target) {
-                 magnifier.style.display = 'none'; // Hide if mouse moved off tracked canvas
-                 return;
+                 // Find the magnifier associated with this canvas (should be sibling)
+                 const magnifier = canvas.parentElement.querySelector('.magnifier');
+                 if (magnifier) {
+                     magnifier.style.backgroundImage = `url(${canvas.dataset.imageDataUrl})`;
+                     magnifier.style.backgroundSize = `${canvas.width * zoomLevel}px ${canvas.height * zoomLevel}px`;
+                 } else {
+                     console.warn("Could not find magnifier for canvas:", canvas);
+                 }
+             } catch (e) {
+                 console.error("Could not generate data URL for canvas:", e);
+                 canvas.dataset.imageDataUrl = ''; // Mark as invalid
+                 // Optionally disable zoom for this canvas if data URL fails
+                 const magnifier = canvas.parentElement?.querySelector('.magnifier');
+                 if(magnifier) magnifier.style.display = 'none';
              }
-             const canvas = currentMagnifiedCanvas;
+        }
 
-            const rect = canvas.getBoundingClientRect(); // Position of canvas on screen
-            const scrollX = window.scrollX || window.pageXOffset;
-            const scrollY = window.scrollY || window.pageYOffset;
 
-            // Mouse position relative to the document
-            const mousePageX = e.pageX;
-            const mousePageY = e.pageY;
+        // --- Synchronized Magnifier Logic ---
 
-            // Mouse position relative to the canvas element
+        function addSyncEventListeners() {
+            // Use event delegation on the container for efficiency
+            visualizationArea.addEventListener('mouseenter', handleSyncMouseEnter, true); // Use capture to detect entering the area
+            visualizationArea.addEventListener('mouseleave', handleSyncMouseLeave);
+            visualizationArea.addEventListener('mousemove', handleSyncMouseMove);
+        }
+
+        function handleSyncMouseEnter(e) {
+            // Check if the mouse is entering a zoomable canvas
+            const targetCanvas = e.target;
+            if (targetCanvas.classList.contains('zoomable-canvas')) {
+                if (leaveTimeoutId) {
+                    clearTimeout(leaveTimeoutId); // Cancel pending hide
+                    leaveTimeoutId = null;
+                }
+                // Show all magnifiers IF they have valid background image data
+                 showAllMagnifiers(true);
+            }
+        }
+
+        function handleSyncMouseLeave(e) {
+            // Hide magnifiers after a short delay, only if mouse truly left the visualization area
+            // Check relatedTarget to see where the mouse is going
+            if (!visualizationArea.contains(e.relatedTarget)) {
+                if (!leaveTimeoutId) {
+                    leaveTimeoutId = setTimeout(() => {
+                        showAllMagnifiers(false); // Hide all
+                        leaveTimeoutId = null;
+                    }, 50); // Shorter delay? Adjust as needed
+                }
+            } else {
+                 // If moving to another element within the viz area, cancel potential hide
+                 if (leaveTimeoutId) {
+                    clearTimeout(leaveTimeoutId);
+                    leaveTimeoutId = null;
+                }
+            }
+        }
+
+        function handleSyncMouseMove(e) {
+            const sourceCanvas = e.target;
+             // Ensure we are directly over a zoomable canvas
+            if (!sourceCanvas.classList.contains('zoomable-canvas') || !sourceCanvas.parentElement) {
+                 // If not directly over, maybe hide? Or let leave handle it?
+                 // For now, do nothing, let leave handle hiding.
+                return;
+             }
+
+            // Ensure all magnifiers are potentially visible (showAllMagnifiers handles display logic)
+            showAllMagnifiers(true); // Re-ensure visibility on move
+            if (leaveTimeoutId) { // Cancel hide if moving within/between canvases
+                clearTimeout(leaveTimeoutId);
+                leaveTimeoutId = null;
+            }
+
+            const rect = sourceCanvas.getBoundingClientRect();
+            // Mouse position relative to the source *canvas element's* boundaries
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // --- Calculate background position ---
-            // Map mouse coords on the *element* to coords on the *canvas internal resolution*
-            const bgX = (x / canvas.clientWidth) * canvas.width;
-            const bgY = (y / canvas.clientHeight) * canvas.height;
+            // Relative position (0.0 to 1.0) on the source canvas ELEMENT
+            const relX = x / sourceCanvas.offsetWidth;
+            const relY = y / sourceCanvas.offsetHeight;
 
-            // Center the magnified view around the cursor
-            // Calculate top-left corner of the background area to show
-            let backgroundPosX = -(bgX * zoomLevel - magnifier.offsetWidth / 2);
-            let backgroundPosY = -(bgY * zoomLevel - magnifier.offsetHeight / 2);
+            // Clamp relative positions to stay within 0-1 range
+            const clampedRelX = Math.max(0, Math.min(1, relX));
+            const clampedRelY = Math.max(0, Math.min(1, relY));
 
-            magnifier.style.backgroundPosition = `${backgroundPosX}px ${backgroundPosY}px`;
+            // Iterate through ALL zoomable canvases and update their magnifiers
+            const allZoomableCanvases = visualizationArea.querySelectorAll('.zoomable-canvas');
 
-            // --- Position the magnifier element ---
-            // Position it centered over the cursor, using document coordinates
-            magnifier.style.left = `${mousePageX - magnifier.offsetWidth / 2}px`;
-            magnifier.style.top = `${mousePageY - magnifier.offsetHeight / 2}px`;
+            allZoomableCanvases.forEach(targetCanvas => {
+                const magnifier = targetCanvas.parentElement.querySelector('.magnifier');
+                // Skip if no magnifier, or if canvas update failed (no data URL)
+                if (!magnifier || !targetCanvas.dataset.imageDataUrl) return;
 
-            magnifier.style.display = 'block'; // Ensure it's visible
+                // --- Calculate background position for the target magnifier ---
+                // Map relative coords to the target canvas's *internal pixel grid*
+                const bgX = clampedRelX * targetCanvas.width;
+                const bgY = clampedRelY * targetCanvas.height;
+
+                // Calculate top-left corner of the background area needed to center the view
+                let backgroundPosX = -(bgX * zoomLevel - magnifier.offsetWidth / 2);
+                let backgroundPosY = -(bgY * zoomLevel - magnifier.offsetHeight / 2);
+
+                magnifier.style.backgroundPosition = `${backgroundPosX}px ${backgroundPosY}px`;
+
+                // --- Position the magnifier element itself ---
+                // Position relative to the top-left of the targetCanvas *element* within its box
+                // Calculate the absolute center point on the target canvas *element*
+                const magnifierCenterX = clampedRelX * targetCanvas.offsetWidth;
+                const magnifierCenterY = clampedRelY * targetCanvas.offsetHeight;
+
+                // Position magnifier so its visual center aligns with the calculated point on the canvas element
+                // Use offsetLeft/Top relative to the parent image-box
+                magnifier.style.left = `${targetCanvas.offsetLeft + magnifierCenterX - magnifier.offsetWidth / 2}px`;
+                magnifier.style.top = `${targetCanvas.offsetTop + magnifierCenterY - magnifier.offsetHeight / 2}px`;
+
+            });
         }
 
-        // Initial call to clear placeholder if needed (e.g., if default values should render something)
-        // processCurrentImage(); // Optional: run on load if you want default state rendered
+        function showAllMagnifiers(show) {
+             const allMagnifiers = visualizationArea.querySelectorAll('.magnifier');
+             allMagnifiers.forEach(m => {
+                 // Only show if requested AND if the corresponding canvas has image data
+                 const canvas = m.parentElement?.querySelector('.zoomable-canvas');
+                 if (show && canvas?.dataset?.imageDataUrl) {
+                    m.style.display = 'block';
+                 } else {
+                    m.style.display = 'none';
+                 }
+             });
+        }
 
     </script>
 
