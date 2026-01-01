@@ -1,7 +1,10 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: home
+title: Home
 ---
+
+### Projects
+- [SigLIP Transform Visualizer](/blog/siglip-transform-visualizer/) - Compare Fixed Resolution vs. NaFlex image preprocessing.
+
+<hr>
 

@@ -3,70 +3,90 @@ layout: null
 permalink: /siglip-transform-visualizer/
 title: SigLIP Transform Visualizer (Fixed vs NaFlex)
 tags: Representation Learning
+nav_exclude: true
 ---
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
     <title>SigLIP Transform Visualizer (Fixed vs. NaFlex - Synced Zoom)</title>
     <style>
         body {
             font-family: sans-serif;
             line-height: 1.6;
-            margin: 0; /* Remove default margin */
+            margin: 0;
+            /* Remove default margin */
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             text-align: center;
             color: #333;
         }
+
         .container {
-            max-width: 1400px; /* Increased width for more boxes */
+            max-width: 1400px;
+            /* Increased width for more boxes */
             margin: auto;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .controls, .visualization-area {
+
+        .controls,
+        .visualization-area {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-around; /* Distribute space */
-            align-items: flex-start; /* Align items top */
+            justify-content: space-around;
+            /* Distribute space */
+            align-items: flex-start;
+            /* Align items top */
             margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 1px solid #eee;
         }
-         .controls > div {
+
+        .controls>div {
             margin: 10px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-         }
-         .controls label {
+        }
+
+        .controls label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-         }
-         .controls input[type="number"],
-         .controls input[type="text"], /* Changed for comma-separated */
-         .controls input[type="file"] {
-             /* width: 100px; */ /* Let them size naturally */
-             padding: 8px;
-             margin-top: 5px;
-             box-sizing: border-box;
-             border: 1px solid #ccc;
-             border-radius: 4px;
-         }
-          .controls input[type="text"] {
-             width: 250px; /* Wider for comma list */
-          }
-         .controls input[type="file"] {
-             width: auto;
-         }
+        }
+
+        .controls input[type="number"],
+        .controls input[type="text"],
+        /* Changed for comma-separated */
+        .controls input[type="file"] {
+            /* width: 100px; */
+            /* Let them size naturally */
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .controls input[type="text"] {
+            width: 250px;
+            /* Wider for comma list */
+        }
+
+        .controls input[type="file"] {
+            width: auto;
+        }
 
         .image-box {
             border: 1px solid #ccc;
@@ -75,106 +95,145 @@ tags: Representation Learning
             text-align: center;
             background-color: #f8f8f8;
             border-radius: 5px;
-            flex: 1; /* Equal flex distribution */
-            min-width: 280px; /* Adjusted min-width */
-            max-width: 350px; /* Added max-width */
+            flex: 1;
+            /* Equal flex distribution */
+            min-width: 280px;
+            /* Adjusted min-width */
+            max-width: 350px;
+            /* Added max-width */
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative; /* Crucial for positioning magnifier inside */
-            overflow: hidden; /* Prevent magnifier spilling out visually */
+            position: relative;
+            /* Crucial for positioning magnifier inside */
+            overflow: hidden;
+            /* Prevent magnifier spilling out visually */
         }
+
         .image-box h3 {
             margin-top: 0;
             color: #555;
             font-size: 1.1em;
         }
+
         /* Base styles for images/canvases */
-        .image-box img, .image-box canvas {
+        .image-box img,
+        .image-box canvas {
             max-width: 100%;
             height: auto;
             display: block;
             margin: 10px auto;
-            background-color: #e0e0e0; /* Canvas background for padding viz */
+            background-color: #e0e0e0;
+            /* Canvas background for padding viz */
             border: 1px dashed #aaa;
-         }
-         /* Specific canvas styling (including zoomable) */
-         .image-box canvas {
-             max-height: 300px;
-             width: auto;
-             max-width: 100%;
-         }
+        }
+
+        /* Specific canvas styling (including zoomable) */
+        .image-box canvas {
+            max-height: 300px;
+            width: auto;
+            max-width: 100%;
+        }
+
         /* Target only zoomable canvases for crosshair */
         .image-box canvas.zoomable-canvas {
-             cursor: crosshair; /* Indicate zoom possible */
-         }
-         /* Non-zoomable image/canvas (like original) shouldn't have crosshair */
-         .image-box img, .image-box canvas:not(.zoomable-canvas) {
-             cursor: default;
-             border: none; /* Remove border from original */
-             background: none;
-         }
+            cursor: crosshair;
+            /* Indicate zoom possible */
+        }
+
+        /* Non-zoomable image/canvas (like original) shouldn't have crosshair */
+        .image-box img,
+        .image-box canvas:not(.zoomable-canvas) {
+            cursor: default;
+            border: none;
+            /* Remove border from original */
+            background: none;
+        }
+
         .image-box p {
             margin-top: 10px;
             font-size: 0.9em;
             color: #444;
             word-wrap: break-word;
         }
+
         .image-box .info {
             font-weight: bold;
             color: #0066cc;
         }
-         #placeholder {
+
+        #placeholder {
             text-align: center;
             font-style: italic;
             color: #777;
             width: 100%;
             padding: 50px 0;
-         }
+        }
 
         /* --- Magnifier Styles --- */
-        .magnifier { /* Changed ID to class */
+        .magnifier {
+            /* Changed ID to class */
             position: absolute;
-            border: 2px solid rgba(180, 180, 180, 0.8); /* Slightly softer border */
-            border-radius: 50%; /* Circular */
-            width: 120px;  /* Adjust size as needed */
+            border: 2px solid rgba(180, 180, 180, 0.8);
+            /* Slightly softer border */
+            border-radius: 50%;
+            /* Circular */
+            width: 120px;
+            /* Adjust size as needed */
             height: 120px;
-            cursor: none; /* Hide cursor over magnifier */
-            display: none; /* Hidden by default */
+            cursor: none;
+            /* Hide cursor over magnifier */
+            display: none;
+            /* Hidden by default */
             background-repeat: no-repeat;
             z-index: 10;
-            pointer-events: none; /* Prevent magnifier from blocking mouse events on canvas */
-            box-shadow: 0 0 8px rgba(0,0,0,0.25);
-            background-color: #fff; /* Fallback bg */
+            pointer-events: none;
+            /* Prevent magnifier from blocking mouse events on canvas */
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+            background-color: #fff;
+            /* Fallback bg */
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>SigLIP Transform Visualizer</h1>
-        <p style="text-align: center;">Compare Fixed Resolution vs. NaFlex image preprocessing (with synchronized zoom).</p>
+        <p style="text-align: center;">Compare Fixed Resolution vs. NaFlex image preprocessing (with synchronized zoom).
+        </p>
 
         <div class="controls">
             <div>
                 <label for="imageUpload">Upload Image:</label>
-                <input type="file" id="imageUpload" accept="image/*">
+                <input type="file"
+                       id="imageUpload"
+                       accept="image/*">
             </div>
             <div>
                 <label for="patchSize">Patch Size (e.g., 14, 16):</label>
-                <input type="number" id="patchSize" value="16" min="1">
+                <input type="number"
+                       id="patchSize"
+                       value="16"
+                       min="1">
             </div>
             <div>
                 <label for="fixedRes">Fixed Resolution (e.g., 224, 384):</label>
-                <input type="number" id="fixedRes" value="384" min="1">
+                <input type="number"
+                       id="fixedRes"
+                       value="384"
+                       min="1">
             </div>
-             <div>
+            <div>
                 <label for="naflexSeqLens">NaFlex Target Seq Lens (comma-sep):</label>
-                <input type="text" id="naflexSeqLens" value="256, 576, 1024">
+                <input type="text"
+                       id="naflexSeqLens"
+                       value="256, 576, 1024">
             </div>
         </div>
 
-        <div class="visualization-area" id="visualizationArea">
-             <p id="placeholder">Upload an image and adjust parameters to see the transforms.</p>
+        <div class="visualization-area"
+             id="visualizationArea">
+            <p id="placeholder">Upload an image and adjust parameters to see the transforms.</p>
             <!-- Image boxes will be added here by JS -->
         </div>
 
@@ -204,7 +263,7 @@ tags: Representation Learning
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const img = new Image();
                 img.onload = () => {
                     currentImage = img;
@@ -227,8 +286,8 @@ tags: Representation Learning
             visualizationArea.removeEventListener('mouseenter', handleSyncMouseEnter, true); // Use capture phase
             visualizationArea.removeEventListener('mouseleave', handleSyncMouseLeave);
             if (leaveTimeoutId) {
-                 clearTimeout(leaveTimeoutId); // Clear any pending hide
-                 leaveTimeoutId = null;
+                clearTimeout(leaveTimeoutId); // Clear any pending hide
+                leaveTimeoutId = null;
             }
 
             visualizationArea.appendChild(placeholder);
@@ -243,7 +302,7 @@ tags: Representation Learning
                 return;
             }
 
-             // Clear previous results and listeners before adding new ones
+            // Clear previous results and listeners before adding new ones
             clearVisualization();
             placeholder.style.display = 'none';
 
@@ -312,14 +371,14 @@ tags: Representation Learning
             addInfo(box, `Input Tokens: <span class="info">${Math.round(fixedTokens)}</span> (${isValidGrid(tokensPerRow) ? `${tokensPerRow} x ${tokensPerRow}` : 'Invalid Patch'}) patches`);
         }
 
-         function setupOriginalBox(box, img, originalW, originalH) {
-             const originalImgElement = document.createElement('img');
-             originalImgElement.src = img.src;
-             originalImgElement.style.maxWidth = '100%'; // Use container max width
-             originalImgElement.style.maxHeight = '280px'; // Limit display height
+        function setupOriginalBox(box, img, originalW, originalH) {
+            const originalImgElement = document.createElement('img');
+            originalImgElement.src = img.src;
+            originalImgElement.style.maxWidth = '100%'; // Use container max width
+            originalImgElement.style.maxHeight = '280px'; // Limit display height
 
-             box.appendChild(originalImgElement);
-             addInfo(box, `Dimensions: <span class="info">${originalW} x ${originalH}</span>`);
+            box.appendChild(originalImgElement);
+            addInfo(box, `Dimensions: <span class="info">${originalW} x ${originalH}</span>`);
         }
 
         function setupNaflexCanvas(canvas, img, patchSize, targetSeqLen, box) {
@@ -332,9 +391,9 @@ tags: Representation Learning
             );
 
             if (targetW <= 0 || targetH <= 0 || finalTokens <= 0) {
-                 addInfo(box, `<span style="color: red;">Calculation Error: Check inputs.</span>`)
-                 addInfo(box, `(Target Seq Len: ${targetSeqLen})`);
-                 return; // Skip drawing if dims are invalid
+                addInfo(box, `<span style="color: red;">Calculation Error: Check inputs.</span>`)
+                addInfo(box, `(Target Seq Len: ${targetSeqLen})`);
+                return; // Skip drawing if dims are invalid
             }
 
             // Set canvas size
@@ -357,10 +416,10 @@ tags: Representation Learning
 
         // --- Calculation Helper Functions ---
 
-         function calculateNaflexDims(originalW, originalH, patchSize, targetSeqLen) {
+        function calculateNaflexDims(originalW, originalH, patchSize, targetSeqLen) {
             // Ensure inputs are valid numbers before proceeding
             if (isNaN(originalW) || isNaN(originalH) || isNaN(patchSize) || isNaN(targetSeqLen) || patchSize <= 0) {
-                 return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
+                return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
             }
 
             let patchesW = Math.ceil(originalW / patchSize);
@@ -392,78 +451,78 @@ tags: Representation Learning
                 // Iteratively reduce dimensions if product still exceeds target,
                 // prioritizing aspect ratio preservation by reducing the larger dimension.
                 while (actualPatchesW * actualPatchesH > targetSeqLen && (actualPatchesW > 1 || actualPatchesH > 1)) {
-                     const currentAspect = actualPatchesW / actualPatchesH;
-                     const originalAspect = patchesW / patchesH;
+                    const currentAspect = actualPatchesW / actualPatchesH;
+                    const originalAspect = patchesW / patchesH;
 
-                     // Decide which dimension to reduce
-                     if (actualPatchesW > 1 && actualPatchesH > 1) {
-                         // Reduce the dimension that brings the aspect ratio closer to the original
-                         const aspectIfWReduced = (actualPatchesW - 1) / actualPatchesH;
-                         const aspectIfHReduced = actualPatchesW / (actualPatchesH - 1);
+                    // Decide which dimension to reduce
+                    if (actualPatchesW > 1 && actualPatchesH > 1) {
+                        // Reduce the dimension that brings the aspect ratio closer to the original
+                        const aspectIfWReduced = (actualPatchesW - 1) / actualPatchesH;
+                        const aspectIfHReduced = actualPatchesW / (actualPatchesH - 1);
 
-                         if (Math.abs(aspectIfWReduced - originalAspect) <= Math.abs(aspectIfHReduced - originalAspect)) {
-                             actualPatchesW--;
-                         } else {
-                             actualPatchesH--;
-                         }
-                     } else if (actualPatchesW > 1) { // Only width can be reduced
-                         actualPatchesW--;
-                     } else if (actualPatchesH > 1) { // Only height can be reduced
-                         actualPatchesH--;
-                     } else {
-                         break; // Cannot reduce further (1x1)
-                     }
+                        if (Math.abs(aspectIfWReduced - originalAspect) <= Math.abs(aspectIfHReduced - originalAspect)) {
+                            actualPatchesW--;
+                        } else {
+                            actualPatchesH--;
+                        }
+                    } else if (actualPatchesW > 1) { // Only width can be reduced
+                        actualPatchesW--;
+                    } else if (actualPatchesH > 1) { // Only height can be reduced
+                        actualPatchesH--;
+                    } else {
+                        break; // Cannot reduce further (1x1)
+                    }
                 }
             }
 
-             // Ensure final dimensions are at least 1x1 patch
+            // Ensure final dimensions are at least 1x1 patch
             actualPatchesW = Math.max(1, actualPatchesW);
             actualPatchesH = Math.max(1, actualPatchesH);
 
-             const targetW = actualPatchesW * patchSize;
-             const targetH = actualPatchesH * patchSize;
-             const finalTokens = actualPatchesW * actualPatchesH;
+            const targetW = actualPatchesW * patchSize;
+            const targetH = actualPatchesH * patchSize;
+            const finalTokens = actualPatchesW * actualPatchesH;
 
-             // Final sanity check
-             if (isNaN(targetW) || isNaN(targetH) || isNaN(finalTokens) || targetW <= 0 || targetH <= 0 || finalTokens <= 0) {
-                 console.error("NaFlex calculation resulted in invalid dimensions:", {targetW, targetH, finalTokens});
-                 return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
-             }
+            // Final sanity check
+            if (isNaN(targetW) || isNaN(targetH) || isNaN(finalTokens) || targetW <= 0 || targetH <= 0 || finalTokens <= 0) {
+                console.error("NaFlex calculation resulted in invalid dimensions:", { targetW, targetH, finalTokens });
+                return { targetW: 0, targetH: 0, actualPatchesW: 0, actualPatchesH: 0, finalTokens: 0 };
+            }
 
-             return { targetW, targetH, actualPatchesW, actualPatchesH, finalTokens };
-         }
+            return { targetW, targetH, actualPatchesW, actualPatchesH, finalTokens };
+        }
 
-         function calculateDrawParams(imgW, imgH, canvasW, canvasH) {
-             // Handle potential division by zero or invalid inputs
-             if (imgH <= 0 || canvasH <= 0 || imgW <= 0 || canvasW <= 0) {
-                 return { drawW: canvasW, drawH: canvasH, offsetX: 0, offsetY: 0 }; // Default to fill if inputs invalid
-             }
+        function calculateDrawParams(imgW, imgH, canvasW, canvasH) {
+            // Handle potential division by zero or invalid inputs
+            if (imgH <= 0 || canvasH <= 0 || imgW <= 0 || canvasW <= 0) {
+                return { drawW: canvasW, drawH: canvasH, offsetX: 0, offsetY: 0 }; // Default to fill if inputs invalid
+            }
 
-             const imgAspectRatio = imgW / imgH;
-             const canvasAspectRatio = canvasW / canvasH;
-             let drawW = canvasW, drawH = canvasH;
-             let offsetX = 0, offsetY = 0;
+            const imgAspectRatio = imgW / imgH;
+            const canvasAspectRatio = canvasW / canvasH;
+            let drawW = canvasW, drawH = canvasH;
+            let offsetX = 0, offsetY = 0;
 
-             if (imgAspectRatio > canvasAspectRatio) { // Image wider than canvas aspect ratio (letterbox)
-                 drawH = canvasW / imgAspectRatio;
-                 offsetY = (canvasH - drawH) / 2;
-             } else if (imgAspectRatio < canvasAspectRatio) { // Image taller than canvas aspect ratio (pillarbox)
-                 drawW = canvasH * imgAspectRatio;
-                 offsetX = (canvasW - drawW) / 2;
-             } else {
-                 // Aspect ratios match, fill the canvas
-                 drawW = canvasW;
-                 drawH = canvasH;
-                 offsetX = 0;
-                 offsetY = 0;
-             }
-             return { drawW, drawH, offsetX, offsetY };
-         }
+            if (imgAspectRatio > canvasAspectRatio) { // Image wider than canvas aspect ratio (letterbox)
+                drawH = canvasW / imgAspectRatio;
+                offsetY = (canvasH - drawH) / 2;
+            } else if (imgAspectRatio < canvasAspectRatio) { // Image taller than canvas aspect ratio (pillarbox)
+                drawW = canvasH * imgAspectRatio;
+                offsetX = (canvasW - drawW) / 2;
+            } else {
+                // Aspect ratios match, fill the canvas
+                drawW = canvasW;
+                drawH = canvasH;
+                offsetX = 0;
+                offsetY = 0;
+            }
+            return { drawW, drawH, offsetX, offsetY };
+        }
 
-         function isValidGrid(val) {
-             // Check if a value is a reasonably valid grid dimension number
-             return Number.isFinite(val) && val > 0 && val < 10000; // Basic sanity check
-         }
+        function isValidGrid(val) {
+            // Check if a value is a reasonably valid grid dimension number
+            return Number.isFinite(val) && val > 0 && val < 10000; // Basic sanity check
+        }
 
 
         // --- UI Helper Functions ---
@@ -492,24 +551,24 @@ tags: Representation Learning
 
         // Update canvas data URL (call after drawing/redrawing)
         function triggerCanvasUpdate(canvas) {
-             // Use try/catch as toDataURL can fail in some edge cases (e.g., tainted canvas)
-             try {
-                 canvas.dataset.imageDataUrl = canvas.toDataURL();
-                 // Find the magnifier associated with this canvas (should be sibling)
-                 const magnifier = canvas.parentElement.querySelector('.magnifier');
-                 if (magnifier) {
-                     magnifier.style.backgroundImage = `url(${canvas.dataset.imageDataUrl})`;
-                     magnifier.style.backgroundSize = `${canvas.width * zoomLevel}px ${canvas.height * zoomLevel}px`;
-                 } else {
-                     console.warn("Could not find magnifier for canvas:", canvas);
-                 }
-             } catch (e) {
-                 console.error("Could not generate data URL for canvas:", e);
-                 canvas.dataset.imageDataUrl = ''; // Mark as invalid
-                 // Optionally disable zoom for this canvas if data URL fails
-                 const magnifier = canvas.parentElement?.querySelector('.magnifier');
-                 if(magnifier) magnifier.style.display = 'none';
-             }
+            // Use try/catch as toDataURL can fail in some edge cases (e.g., tainted canvas)
+            try {
+                canvas.dataset.imageDataUrl = canvas.toDataURL();
+                // Find the magnifier associated with this canvas (should be sibling)
+                const magnifier = canvas.parentElement.querySelector('.magnifier');
+                if (magnifier) {
+                    magnifier.style.backgroundImage = `url(${canvas.dataset.imageDataUrl})`;
+                    magnifier.style.backgroundSize = `${canvas.width * zoomLevel}px ${canvas.height * zoomLevel}px`;
+                } else {
+                    console.warn("Could not find magnifier for canvas:", canvas);
+                }
+            } catch (e) {
+                console.error("Could not generate data URL for canvas:", e);
+                canvas.dataset.imageDataUrl = ''; // Mark as invalid
+                // Optionally disable zoom for this canvas if data URL fails
+                const magnifier = canvas.parentElement?.querySelector('.magnifier');
+                if (magnifier) magnifier.style.display = 'none';
+            }
         }
 
 
@@ -531,7 +590,7 @@ tags: Representation Learning
                     leaveTimeoutId = null;
                 }
                 // Show all magnifiers IF they have valid background image data
-                 showAllMagnifiers(true);
+                showAllMagnifiers(true);
             }
         }
 
@@ -546,8 +605,8 @@ tags: Representation Learning
                     }, 50); // Shorter delay? Adjust as needed
                 }
             } else {
-                 // If moving to another element within the viz area, cancel potential hide
-                 if (leaveTimeoutId) {
+                // If moving to another element within the viz area, cancel potential hide
+                if (leaveTimeoutId) {
                     clearTimeout(leaveTimeoutId);
                     leaveTimeoutId = null;
                 }
@@ -556,12 +615,12 @@ tags: Representation Learning
 
         function handleSyncMouseMove(e) {
             const sourceCanvas = e.target;
-             // Ensure we are directly over a zoomable canvas
+            // Ensure we are directly over a zoomable canvas
             if (!sourceCanvas.classList.contains('zoomable-canvas') || !sourceCanvas.parentElement) {
-                 // If not directly over, maybe hide? Or let leave handle it?
-                 // For now, do nothing, let leave handle hiding.
+                // If not directly over, maybe hide? Or let leave handle it?
+                // For now, do nothing, let leave handle hiding.
                 return;
-             }
+            }
 
             // Ensure all magnifiers are potentially visible (showAllMagnifiers handles display logic)
             showAllMagnifiers(true); // Re-ensure visibility on move
@@ -617,19 +676,20 @@ tags: Representation Learning
         }
 
         function showAllMagnifiers(show) {
-             const allMagnifiers = visualizationArea.querySelectorAll('.magnifier');
-             allMagnifiers.forEach(m => {
-                 // Only show if requested AND if the corresponding canvas has image data
-                 const canvas = m.parentElement?.querySelector('.zoomable-canvas');
-                 if (show && canvas?.dataset?.imageDataUrl) {
+            const allMagnifiers = visualizationArea.querySelectorAll('.magnifier');
+            allMagnifiers.forEach(m => {
+                // Only show if requested AND if the corresponding canvas has image data
+                const canvas = m.parentElement?.querySelector('.zoomable-canvas');
+                if (show && canvas?.dataset?.imageDataUrl) {
                     m.style.display = 'block';
-                 } else {
+                } else {
                     m.style.display = 'none';
-                 }
-             });
+                }
+            });
         }
 
     </script>
 
 </body>
+
 </html>
