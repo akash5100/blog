@@ -123,7 +123,7 @@ nav_exclude: true
             height: auto;
             display: block;
             margin: 10px auto;
-            background-color: #e0e0e0;
+            background-color: #000;
             /* Canvas background for padding viz */
             border: 1px dashed #aaa;
         }
@@ -160,6 +160,33 @@ nav_exclude: true
         .image-box .info {
             font-weight: bold;
             color: #0066cc;
+        }
+
+        #cropperContainer {
+            text-align: center;
+            margin: 20px auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+            max-width: 100%;
+            display: none;
+            /* Shown after upload */
+        }
+
+        #cropperCanvas {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            cursor: crosshair;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .cropper-instructions {
+            color: #ccc;
+            margin-bottom: 10px;
+            font-size: 0.9em;
         }
 
         #placeholder {
@@ -210,9 +237,16 @@ nav_exclude: true
                        accept="image/*">
             </div>
             <div>
-                <label for="patchSize">Patch Size (e.g., 14, 16):</label>
+                <label for="fixedPatchSize">Fixed Patch Size:</label>
                 <input type="number"
-                       id="patchSize"
+                       id="fixedPatchSize"
+                       value="14"
+                       min="1">
+            </div>
+            <div>
+                <label for="naflexPatchSize">NaFlex Patch Size:</label>
+                <input type="number"
+                       id="naflexPatchSize"
                        value="16"
                        min="1">
             </div>
@@ -229,6 +263,21 @@ nav_exclude: true
                        id="naflexSeqLens"
                        value="256, 576, 1024">
             </div>
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                <label style="display: inline; cursor: pointer;">
+                    <input type="checkbox"
+                           id="showGrids"> Show Patch Grids
+                </label>
+            </div>
+        </div>
+
+        <div id="cropperContainer">
+            <div class="cropper-instructions">Click and drag on the original image to set a Bounding Box (Input Region)
+            </div>
+            <button id="resetCrop"
+                    style="margin-bottom: 15px; padding: 5px 15px; cursor: pointer;">Reset Crop</button>
+            <br>
+            <canvas id="cropperCanvas"></canvas>
         </div>
 
         <div class="visualization-area"
@@ -242,21 +291,38 @@ nav_exclude: true
     </div>
 
     <script>
-        const imageUpload = document.getElementById('imageUpload');
-        const patchSizeInput = document.getElementById('patchSize');
+        const fixedPatchSizeInput = document.getElementById('fixedPatchSize');
+        const naflexPatchSizeInput = document.getElementById('naflexPatchSize');
         const fixedResInput = document.getElementById('fixedRes');
         const naflexSeqLensInput = document.getElementById('naflexSeqLens');
+        const showGridsCheckbox = document.getElementById('showGrids');
         const visualizationArea = document.getElementById('visualizationArea');
         const placeholder = document.getElementById('placeholder');
 
+        // Cropper elements
+        const cropperContainer = document.getElementById('cropperContainer');
+        const cropperCanvas = document.getElementById('cropperCanvas');
+        const resetCropBtn = document.getElementById('resetCrop');
+
         let currentImage = null;
+        let cropBbox = null; // {x, y, w, h} in natural image pixels
+        let isDrawing = false;
+        let startX, startY;
+
         const zoomLevel = 2.5; // Magnification factor
         let leaveTimeoutId = null; // For delayed hiding
 
         imageUpload.addEventListener('change', handleImageUpload);
-        patchSizeInput.addEventListener('input', processCurrentImage);
+        fixedPatchSizeInput.addEventListener('input', processCurrentImage);
+        naflexPatchSizeInput.addEventListener('input', processCurrentImage);
         fixedResInput.addEventListener('input', processCurrentImage);
         naflexSeqLensInput.addEventListener('input', processCurrentImage);
+        showGridsCheckbox.addEventListener('change', processCurrentImage);
+        resetCropBtn.addEventListener('click', () => {
+            cropBbox = null;
+            renderCropper();
+            processCurrentImage();
+        });
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -267,6 +333,8 @@ nav_exclude: true
                 const img = new Image();
                 img.onload = () => {
                     currentImage = img;
+                    cropBbox = null; // Reset for new image
+                    renderCropper();
                     processCurrentImage();
                 };
                 img.onerror = () => {
@@ -278,6 +346,74 @@ nav_exclude: true
             }
             reader.readAsDataURL(file);
         }
+
+        function renderCropper() {
+            if (!currentImage) {
+                cropperContainer.style.display = 'none';
+                return;
+            }
+            cropperContainer.style.display = 'block';
+            cropperCanvas.width = currentImage.naturalWidth;
+            cropperCanvas.height = currentImage.naturalHeight;
+            const ctx = cropperCanvas.getContext('2d');
+            ctx.drawImage(currentImage, 0, 0);
+
+            if (cropBbox) {
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([10, 5]);
+                ctx.strokeRect(cropBbox.x, cropBbox.y, cropBbox.w, cropBbox.h);
+                ctx.setLineDash([]);
+                // Add semi-transparent overlay
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                // Top
+                ctx.fillRect(0, 0, cropperCanvas.width, cropBbox.y);
+                // Bottom
+                ctx.fillRect(0, cropBbox.y + cropBbox.h, cropperCanvas.width, cropperCanvas.height - (cropBbox.y + cropBbox.h));
+                // Left
+                ctx.fillRect(0, cropBbox.y, cropBbox.x, cropBbox.h);
+                // Right
+                ctx.fillRect(cropBbox.x + cropBbox.w, cropBbox.y, cropperCanvas.width - (cropBbox.x + cropBbox.w), cropBbox.h);
+            }
+        }
+
+        cropperCanvas.addEventListener('mousedown', (e) => {
+            const rect = cropperCanvas.getBoundingClientRect();
+            // Map click to internal canvas pixels
+            const scaleX = cropperCanvas.width / rect.width;
+            const scaleY = cropperCanvas.height / rect.height;
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+            isDrawing = true;
+        });
+
+        cropperCanvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = cropperCanvas.getBoundingClientRect();
+            const scaleX = cropperCanvas.width / rect.width;
+            const scaleY = cropperCanvas.height / rect.height;
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+
+            cropBbox = {
+                x: Math.min(startX, currentX),
+                y: Math.min(startY, currentY),
+                w: Math.abs(currentX - startX),
+                h: Math.abs(currentY - startY)
+            };
+            renderCropper();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDrawing) {
+                isDrawing = false;
+                if (cropBbox && (cropBbox.w < 5 || cropBbox.h < 5)) {
+                    cropBbox = null; // Ignore tiny crops
+                }
+                renderCropper();
+                processCurrentImage();
+            }
+        });
 
         function clearVisualization() {
             visualizationArea.innerHTML = ''; // Clear everything
@@ -306,46 +442,61 @@ nav_exclude: true
             clearVisualization();
             placeholder.style.display = 'none';
 
-            const patchSize = parseInt(patchSizeInput.value) || 16;
+            const fixedPatchSize = parseInt(fixedPatchSizeInput.value) || 14;
+            const naflexPatchSize = parseInt(naflexPatchSizeInput.value) || 16;
             const fixedRes = parseInt(fixedResInput.value) || 384;
             const naflexSeqLensStr = naflexSeqLensInput.value || "256";
+            const showGrids = showGridsCheckbox.checked;
 
             const targetSeqLens = naflexSeqLensStr
                 .split(',')
                 .map(s => parseInt(s.trim()))
                 .filter(n => !isNaN(n) && n > 0);
 
-            if (patchSize <= 0 || fixedRes <= 0 || targetSeqLens.length === 0) {
-                alert("Parameters (Patch Size, Fixed Res) must be positive numbers, and at least one valid NaFlex Seq Len is required.");
+            if (fixedPatchSize <= 0 || naflexPatchSize <= 0 || fixedRes <= 0 || targetSeqLens.length === 0) {
+                alert("Parameters (Patch Sizes, Fixed Res) must be positive numbers, and at least one valid NaFlex Seq Len is required.");
                 clearVisualization(); // Show placeholder again
                 return;
             }
 
             const img = currentImage;
-            const originalW = img.naturalWidth;
-            const originalH = img.naturalHeight;
+            let sourceImg = img;
+            let inputW = img.naturalWidth;
+            let inputH = img.naturalHeight;
 
-            // --- 1. Fixed Resolution Transform ---
+            // If a crop exists, create a temporary source from it
+            if (cropBbox) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = cropBbox.w;
+                tempCanvas.height = cropBbox.h;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(img, cropBbox.x, cropBbox.y, cropBbox.w, cropBbox.h, 0, 0, cropBbox.w, cropBbox.h);
+                sourceImg = tempCanvas;
+                inputW = cropBbox.w;
+                inputH = cropBbox.h;
+            }
+
+            // --- 1. Original Image (Showing the Crop Input) ---
+            const originalBox = createImageBox(cropBbox ? 'Selected Region (Input)' : 'Original');
+            setupOriginalBox(originalBox, sourceImg, inputW, inputH);
+            // NO magnifier for original box
+            visualizationArea.appendChild(originalBox);
+
+            // --- 2. Fixed Resolution Transform ---
             const fixedBox = createImageBox('Fixed Resolution');
             const fixedCanvas = document.createElement('canvas');
             fixedCanvas.classList.add('zoomable-canvas'); // Mark as zoomable
-            setupFixedCanvas(fixedCanvas, img, fixedRes, patchSize, fixedBox);
+            setupFixedCanvas(fixedCanvas, sourceImg, fixedRes, fixedPatchSize, fixedBox, showGrids);
             addMagnifierElement(fixedBox); // Add magnifier div
             visualizationArea.appendChild(fixedBox);
             triggerCanvasUpdate(fixedCanvas); // Update data URL after drawing
-
-            // --- 2. Original Image ---
-            const originalBox = createImageBox('Original');
-            setupOriginalBox(originalBox, img, originalW, originalH);
-            // NO magnifier for original box
-            visualizationArea.appendChild(originalBox);
 
             // --- 3. NaFlex Transforms (Loop through specified lengths) ---
             targetSeqLens.forEach(targetSeqLen => {
                 const naflexBox = createImageBox(`NaFlex (Seq Len: ${targetSeqLen})`);
                 const naflexCanvas = document.createElement('canvas');
                 naflexCanvas.classList.add('zoomable-canvas'); // Mark as zoomable
-                setupNaflexCanvas(naflexCanvas, img, patchSize, targetSeqLen, naflexBox);
+                setupNaflexCanvas(naflexCanvas, sourceImg, naflexPatchSize, targetSeqLen, naflexBox, showGrids);
                 addMagnifierElement(naflexBox); // Add magnifier div
                 visualizationArea.appendChild(naflexBox);
                 triggerCanvasUpdate(naflexCanvas); // Update data URL after drawing
@@ -357,23 +508,39 @@ nav_exclude: true
 
         // --- Helper Functions for Setup (Modified/New) ---
 
-        function setupFixedCanvas(canvas, img, fixedRes, patchSize, box) {
+        function setupFixedCanvas(canvas, img, fixedRes, patchSize, box, showGrid) {
             canvas.width = fixedRes;
             canvas.height = fixedRes;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, fixedRes, fixedRes); // Resize (and distort if needed)
+
+            // Draw image preserving aspect ratio (letterbox/pillarbox)
+            // Use naturalWidth/Height if img is an HTMLImageElement, otherwise width/height for Canvas
+            const imgW = img.naturalWidth || img.width;
+            const imgH = img.naturalHeight || img.height;
+            const drawParams = calculateDrawParams(imgW, imgH, fixedRes, fixedRes);
+            const { drawW, drawH, offsetX, offsetY } = drawParams;
+            canvas.dataset.drawParams = JSON.stringify(drawParams);
+
+            ctx.fillStyle = '#000000'; // Black bars/padding
+            ctx.fillRect(0, 0, fixedRes, fixedRes);
+            ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+            if (showGrid) {
+                drawPatchGrid(ctx, fixedRes, fixedRes, patchSize);
+            }
 
             const tokensPerRow = fixedRes / patchSize;
             const fixedTokens = tokensPerRow * tokensPerRow;
 
             box.appendChild(canvas); // Append canvas FIRST
-            addInfo(box, `Target Res: <span class="info">${fixedRes} x ${fixedRes}</span>`);
+            addInfo(box, `Target Res: <span class="info">${fixedRes} x ${fixedRes}</span> | Patch: <span class="info">${patchSize}</span>`);
             addInfo(box, `Input Tokens: <span class="info">${Math.round(fixedTokens)}</span> (${isValidGrid(tokensPerRow) ? `${tokensPerRow} x ${tokensPerRow}` : 'Invalid Patch'}) patches`);
         }
 
         function setupOriginalBox(box, img, originalW, originalH) {
             const originalImgElement = document.createElement('img');
-            originalImgElement.src = img.src;
+            // If img is a canvas (from a crop), we need to set src to data URL
+            originalImgElement.src = img.src || img.toDataURL();
             originalImgElement.style.maxWidth = '100%'; // Use container max width
             originalImgElement.style.maxHeight = '280px'; // Limit display height
 
@@ -381,9 +548,9 @@ nav_exclude: true
             addInfo(box, `Dimensions: <span class="info">${originalW} x ${originalH}</span>`);
         }
 
-        function setupNaflexCanvas(canvas, img, patchSize, targetSeqLen, box) {
-            const originalW = img.naturalWidth;
-            const originalH = img.naturalHeight;
+        function setupNaflexCanvas(canvas, img, patchSize, targetSeqLen, box, showGrid) {
+            const originalW = img.naturalWidth || img.width;
+            const originalH = img.naturalHeight || img.height;
             const naflexCtx = canvas.getContext('2d');
 
             const { targetW, targetH, actualPatchesW, actualPatchesH, finalTokens } = calculateNaflexDims(
@@ -401,14 +568,20 @@ nav_exclude: true
             canvas.height = targetH;
 
             // Draw image preserving aspect ratio (letterbox/pillarbox)
-            const { drawW, drawH, offsetX, offsetY } = calculateDrawParams(originalW, originalH, targetW, targetH);
+            const drawParams = calculateDrawParams(originalW, originalH, targetW, targetH);
+            const { drawW, drawH, offsetX, offsetY } = drawParams;
+            canvas.dataset.drawParams = JSON.stringify(drawParams);
 
-            naflexCtx.fillStyle = '#e0e0e0'; // Background for padding
+            naflexCtx.fillStyle = '#000000'; // Black bars/padding
             naflexCtx.fillRect(0, 0, targetW, targetH);
             naflexCtx.drawImage(img, offsetX, offsetY, drawW, drawH);
 
+            if (showGrid) {
+                drawPatchGrid(naflexCtx, targetW, targetH, patchSize);
+            }
+
             box.appendChild(canvas); // Append canvas FIRST
-            addInfo(box, `Grid Res: <span class="info">${targetW} x ${targetH}</span>`);
+            addInfo(box, `Grid Res: <span class="info">${targetW} x ${targetH}</span> | Patch: <span class="info">${patchSize}</span>`);
             addInfo(box, `Input Tokens: <span class="info">${finalTokens}</span> (${isValidGrid(actualPatchesW) ? `${actualPatchesW} x ${actualPatchesH}` : 'Invalid Grid'}) patches`);
             addInfo(box, `(Target Seq Len: ${targetSeqLen})`);
         }
@@ -524,6 +697,29 @@ nav_exclude: true
             return Number.isFinite(val) && val > 0 && val < 10000; // Basic sanity check
         }
 
+        function drawPatchGrid(ctx, width, height, patchSize) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)'; // Semi-transparent red grid
+            ctx.lineWidth = 1;
+
+            // Vertical lines
+            for (let x = 0; x <= width; x += patchSize) {
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+            }
+
+            // Horizontal lines
+            for (let y = 0; y <= height; y += patchSize) {
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+            }
+            ctx.stroke();
+
+            // Add an outer border for clarity
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.9)';
+            ctx.strokeRect(0, 0, width, height);
+        }
+
 
         // --- UI Helper Functions ---
 
@@ -630,48 +826,56 @@ nav_exclude: true
             }
 
             const rect = sourceCanvas.getBoundingClientRect();
-            // Mouse position relative to the source *canvas element's* boundaries
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            // Mouse position relative to the source *canvas element's* display boundaries
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
 
             // Relative position (0.0 to 1.0) on the source canvas ELEMENT
-            const relX = x / sourceCanvas.offsetWidth;
-            const relY = y / sourceCanvas.offsetHeight;
+            const relX = mouseX / sourceCanvas.offsetWidth;
+            const relY = mouseY / sourceCanvas.offsetHeight;
 
-            // Clamp relative positions to stay within 0-1 range
-            const clampedRelX = Math.max(0, Math.min(1, relX));
-            const clampedRelY = Math.max(0, Math.min(1, relY));
+            // Map to Internal Pixel Position on the source canvas
+            const sourcePixelX = relX * sourceCanvas.width;
+            const sourcePixelY = relY * sourceCanvas.height;
+
+            // Get source draw parameters to find relative position WITHIN THE IMAGE
+            const sourceParams = JSON.parse(sourceCanvas.dataset.drawParams || '{}');
+            if (!sourceParams.drawW) return; // Safety check
+
+            const imgRelX = (sourcePixelX - sourceParams.offsetX) / sourceParams.drawW;
+            const imgRelY = (sourcePixelY - sourceParams.offsetY) / sourceParams.drawH;
 
             // Iterate through ALL zoomable canvases and update their magnifiers
             const allZoomableCanvases = visualizationArea.querySelectorAll('.zoomable-canvas');
 
             allZoomableCanvases.forEach(targetCanvas => {
                 const magnifier = targetCanvas.parentElement.querySelector('.magnifier');
-                // Skip if no magnifier, or if canvas update failed (no data URL)
                 if (!magnifier || !targetCanvas.dataset.imageDataUrl) return;
 
-                // --- Calculate background position for the target magnifier ---
-                // Map relative coords to the target canvas's *internal pixel grid*
-                const bgX = clampedRelX * targetCanvas.width;
-                const bgY = clampedRelY * targetCanvas.height;
+                const targetParams = JSON.parse(targetCanvas.dataset.drawParams || '{}');
+                if (!targetParams.drawW) return;
 
-                // Calculate top-left corner of the background area needed to center the view
-                let backgroundPosX = -(bgX * zoomLevel - magnifier.offsetWidth / 2);
-                let backgroundPosY = -(bgY * zoomLevel - magnifier.offsetHeight / 2);
+                // Map image-space coordinate back to this target canvas's pixel space
+                const targetPixelX = imgRelX * targetParams.drawW + targetParams.offsetX;
+                const targetPixelY = imgRelY * targetParams.drawH + targetParams.offsetY;
+
+                // --- Calculate background position for the target magnifier ---
+                // (Using the target's internal pixel grid)
+                let backgroundPosX = -(targetPixelX * zoomLevel - magnifier.offsetWidth / 2);
+                let backgroundPosY = -(targetPixelY * zoomLevel - magnifier.offsetHeight / 2);
 
                 magnifier.style.backgroundPosition = `${backgroundPosX}px ${backgroundPosY}px`;
 
                 // --- Position the magnifier element itself ---
-                // Position relative to the top-left of the targetCanvas *element* within its box
-                // Calculate the absolute center point on the target canvas *element*
-                const magnifierCenterX = clampedRelX * targetCanvas.offsetWidth;
-                const magnifierCenterY = clampedRelY * targetCanvas.offsetHeight;
+                // Need relative position on the DISPLAY element for positioning the div
+                const targetRelX = targetPixelX / targetCanvas.width;
+                const targetRelY = targetPixelY / targetCanvas.height;
 
-                // Position magnifier so its visual center aligns with the calculated point on the canvas element
-                // Use offsetLeft/Top relative to the parent image-box
+                const magnifierCenterX = targetRelX * targetCanvas.offsetWidth;
+                const magnifierCenterY = targetRelY * targetCanvas.offsetHeight;
+
                 magnifier.style.left = `${targetCanvas.offsetLeft + magnifierCenterX - magnifier.offsetWidth / 2}px`;
                 magnifier.style.top = `${targetCanvas.offsetTop + magnifierCenterY - magnifier.offsetHeight / 2}px`;
-
             });
         }
 
