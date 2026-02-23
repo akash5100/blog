@@ -25,7 +25,7 @@
 
       <div class="trigger">
         <a class="page-link"
-           href="{{ '/search' | strip | relative_url }}">Search</a>
+           href="{{ '/search' | strip | relative_url }}">Search</a>&nbsp;
         {%- for path in page_paths -%}
         {%- assign my_page = site.pages | where: 'path', path | first -%}
         {%- if my_page.title and my_page.nav_exclude != true -%}

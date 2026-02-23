@@ -37,3 +37,4 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - Makefile
+  - vendor
