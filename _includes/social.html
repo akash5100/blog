@@ -1,0 +1,22 @@
+<ul class="social-media-list">
+  {%- for entry in site.minima.social_links -%}
+    <li>
+      <a href="{{ entry.user_url }}">
+        <svg class="svg-icon">
+          <use xlink:href="{{ '/assets/minima-social-icons.svg' | relative_url }}#{{ entry.platform }}"></use>
+        </svg>
+        <span class="username">{{ entry.platform }}</span>
+      </a>
+    </li>
+  {%- endfor -%}
+  {%- if site.feed.path or site.gems contains 'jekyll-feed' or site.plugins contains 'jekyll-feed' -%}
+    <li>
+      <a href="{{ 'feed.xml' | relative_url }}">
+        <svg class="svg-icon">
+          <use xlink:href="{{ '/assets/minima-social-icons.svg' | relative_url }}#rss"></use>
+        </svg>
+        <span class="username">rss</span>
+      </a>
+    </li>
+  {%- endif -%}
+</ul>
