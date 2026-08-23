@@ -70,7 +70,7 @@ In the vanilla Transformer, attention doesn't flow between context windows. Cons
 
 <hr>
 <figure style="text-align: center;">
-  <img src="/assets/Case_Study:_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
+  <img src="/assets/Case_Study_Transformer_based_architecture_development/xl-vanilla.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
   <figcaption>Illustration of the vanilla transformer with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
 <hr>
@@ -83,7 +83,7 @@ TransformerXL used caching of Key and Value attention computation to speed up in
 
 <hr>
 <figure style="text-align: center;">
-  <img src="/assets/Case_Study:_Transformer_based_architecture_development/xl-model.png" alt='xl-model' style="max-width: 100%; height: auto;">
+  <img src="/assets/Case_Study_Transformer_based_architecture_development/xl-model.png" alt='xl-model' style="max-width: 100%; height: auto;">
   <figcaption>Illustration of the Transformer-XL with a segment length 4 ~from the Transformer-XL paper</figcaption>
 </figure>
 <hr>
@@ -116,7 +116,7 @@ TransformerXL used caching of Key and Value attention computation to speed up in
   With the above achievement (reusing the previous context attention) we just created another problem. Notice, the positional encoding of current segment's first token is equal to the previous segment's first token.  
     <hr>
     <figure style="text-align: center;">
-      <img src="/assets/Case_Study:_Transformer_based_architecture_development/xl-incoherence.png" alt='xl-incoherence' style="max-width: 100%; height: auto;">
+      <img src="/assets/Case_Study_Transformer_based_architecture_development/xl-incoherence.png" alt='xl-incoherence' style="max-width: 100%; height: auto;">
       <figcaption>makes model confuse? ~from https://vimeo.com/384795188</figcaption>
     </figure>
     <hr>
@@ -168,7 +168,7 @@ The Transformer architecture, introduced in the paper "Attention is All You Need
     
   <hr>
   <figure style="text-align: center;">
-    <img src="/assets/Case_Study:_Transformer_based_architecture_development/ST1.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
+    <img src="/assets/Case_Study_Transformer_based_architecture_development/ST1.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
     <figcaption>Learned attention patterns from a 128-layer network</figcaption>
   </figure>
   <hr>
@@ -189,7 +189,7 @@ The paper introduced three key techniques to solve the quadratic complexity issu
     - **Scaling to 100 of layers:** Used pre-activation residual block.
     <hr>
     <figure style="text-align: center;">
-      <img src="/assets/Case_Study:_Transformer_based_architecture_development/ST2.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
+      <img src="/assets/Case_Study_Transformer_based_architecture_development/ST2.png" alt='xl-vanilla' style="max-width: 100%; height: auto; align: center">
       <figcaption>from the Sparse Transformer paper</figcaption>
     </figure>
     <hr>
