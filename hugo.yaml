@@ -1,0 +1,117 @@
+baseURL: "https://akash5100.github.io/"
+title: "akash5100"
+
+module:
+  imports:
+    - path: github.com/adityatelange/hugo-PaperMod
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+pagination:
+  pagerSize: 15
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+
+taxonomies:
+  category: categories
+  tag: tags
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+    extensions:
+      passthrough:
+        enable: true
+        delimiters:
+          block:
+            - - '$$'
+              - '$$'
+            - - '\['
+              - '\]'
+          inline:
+            - - '$'
+              - '$'
+            - - '\('
+              - '\)'
+  highlight:
+    noClasses: false
+    codeFences: true
+    guessSyntax: true
+    lineNos: false
+    style: monokai
+
+params:
+  env: production
+  title: "akash5100"
+  description: "Documenting my deep learning journey"
+  author: "akash5100"
+  
+  # PaperMod features
+  mainSections:
+    - posts
+  disableSpecial1stPost: true
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: false
+  ShowRssButtonInSectionTermList: true
+  UseHugoToc: true
+  ShowToc: true
+  TocOpen: false
+
+  # Math support
+  math: true
+
+  # Profile mode for /about page
+  profileMode:
+    enabled: false
+    title: "Akash Verma"
+    subtitle: "Documenting my deep learning journey"
+    imageUrl: ""
+    buttons:
+      - name: Posts
+        url: "/"
+      - name: Projects
+        url: "/projects/"
+      - name: Search
+        url: "/search/"
+      - name: Tags
+        url: "/tags/"
+
+  # Social Icons
+  socialIcons:
+    - name: github
+      url: "https://github.com/akash5100"
+    - name: x
+      url: "https://x.com/akzsh5100"
+    - name: email
+      url: "mailto:akashzsh08@gmail.com"
+
+menu:
+  main:
+    - name: Posts
+      url: "/"
+      weight: 10
+    - name: Projects
+      url: "projects/"
+      weight: 20
+    - name: Search
+      url: "search/"
+      weight: 30
+    - name: Tags
+      url: "tags/"
+      weight: 40
+    - name: About
+      url: "about/"
+      weight: 50

@@ -1,0 +1,14 @@
+{{- define "main" }}
+
+<article class="post-single">
+  <div class="post-content">
+    {{- partial "index_profile.html" . -}}
+    {{- if .Content }}
+    <div style="margin-top: 2rem;">
+      {{ .Content }}
+    </div>
+    {{- end }}
+  </div>
+</article>
+
+{{- end }}

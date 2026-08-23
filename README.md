@@ -1,48 +1,38 @@
-# Blog
+# akash5100 blog
 
-## Installation
+Personal research notes, deep learning architectures, and experiments. Built with Hugo + PaperMod, optimized for Obsidian and GitHub Pages.
 
-```bash
-bundle install          # Install dependencies
-bundle exec jekyll serve # Run the server
-```
+## Local Development
 
-To build:
+Run the Hugo server via Docker:
 
 ```bash
-bundle exec jekyll build # Build the project
+docker run --rm -it -v "$PWD:/src" -p 1313:1313 hugomods/hugo:exts hugo server --bind 0.0.0.0 --baseURL http://localhost:1313/
 ```
 
-## Docker
+Open [http://localhost:1313/](http://localhost:1313/) in your browser.
 
-* Build Docker image
-  ```bash
-  make build
-  ```
+## Writing with Obsidian
 
-* Start the server (need for first time to install `gem` dependencies)
-  ```bash
-  make create
-  ```
+1. Open this repository (or just `content/posts/`) in **Obsidian**.
+2. Create a new `.md` file in `content/posts/` with the standard front matter:
 
-* get container name using:
-  ```bash
-  docker ps -a (IMAGE: blog)
-  ```
-
-* Everytime, to run server locally, do this:
-  ```bash
-  make run CONTAINER_NAME=relaxed_mcclintock 
-  ```
-  replace `relaxed_mcclintock` with generated container name
-
-* Remove the Docker image (if needed)
-  ```bash
-  make clean
-  ```
-
-## Template Automater
-
-```bash
-./create.py -t 'some title' -c 'what category'  # Need chmod +x
+```yaml
+---
+title: "Your Post Title"
+date: YYYY-MM-DD
+tags:
+  - "deeplearning"
+math: true
+ShowToc: true
+---
 ```
+
+3. Write your research notes using standard Markdown, LaTeX formulas (`$$ ... $$` or `$ ... $`), and images.
+
+## Deployment
+
+Deployments are 100% automated. Whenever you `git push origin main`:
+1. GitHub Actions pulls any Git LFS images and fetches PaperMod.
+2. Builds the site with Hugo in ~15 seconds.
+3. Automatically publishes your new post live to [akash5100.github.io](https://akash5100.github.io).
