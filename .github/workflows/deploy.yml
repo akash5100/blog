@@ -42,6 +42,17 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache: true
+
+      - name: Cache Hugo resources & modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hugo_cache
+            resources
+          key: ${{ runner.os }}-hugo-${{ hashFiles('**/go.sum', '**/hugo.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-hugo-
 
       - name: Build with Hugo
         run: hugo --minify
